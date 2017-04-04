@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router';
 
 export default class Nav extends Component {
   render () {
@@ -12,12 +13,12 @@ export default class Nav extends Component {
                     <span className="icon-bar"></span>
                     <span className="icon-bar"></span>
                 </button>
-                <a className="navbar-brand" href="#">ThingsSDK Flasher</a>
+                <Link className="navbar-brand" to="/">ThingsSDK Flasher</Link>
                 </div>
                 <div id="navbar" className="navbar-collapse collapse">
                 <ul className="nav navbar-nav navbar-right">
-                    <li><a href="#">Dashboard</a></li>
-                    <li><a href="#">Profile</a></li>
+                    <li><Link to="/dashboard">Dashboard</Link></li>
+                    <li><Link to="/profile">Profile</Link></li>
                     <li><a href="#">Help</a></li>
                 </ul>
                 <form className="navbar-form navbar-right">
