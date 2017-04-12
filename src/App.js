@@ -1,15 +1,28 @@
 import React from 'react';
-import { createStore } from 'redux';
-import AppReducer from './reducers/app';
+import thunkMiddleware from 'redux-thunk';
+import { createLogger } from 'redux-logger';
+import { createStore, applyMiddleware } from 'redux';
+import MainReducer from './reducers/main';
+import { fetchManifests } from './actions/manifests';
+import { checkForToken } from './actions/authenticate';
 
 // Components
-import AppContainer from './components/AppContainer';
+import AppRoot from './components/AppRoot';
+
+const loggerMiddleware = createLogger();
 
 const store = createStore(
-    AppReducer
+    MainReducer,
+    applyMiddleware(
+        thunkMiddleware,
+        loggerMiddleware
+    )
 );
 
+store.dispatch(checkForToken());
+store.dispatch(fetchManifests());
+
 export default () => (
-    <AppContainer store={store} />
+    <AppRoot store={store} />
 );
 

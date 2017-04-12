@@ -11,7 +11,7 @@ import Signup from './Signup';
 
 import '../App.css';
 
-const AppContainer = ({ store }) => (
+const AppRoot = ({ store }) => (
     <Provider store={ store }>
         <Router history={browserHistory}>
             <Route path="/">
@@ -27,4 +27,4 @@ const AppContainer = ({ store }) => (
     </Provider>
 );
 
-export default AppContainer;
+export default AppRoot;

@@ -1,15 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Nav from './Nav';
 
-class Dashboard extends Component {
-  render () {
-    return (
-      <div className="row">
+const Dashboard = props => (
+    <div className="row">
         <Nav />
-        {this.props.children}
-      </div>
-    )
-  }
-}
+        {props.children}
+    </div>
+)
 
 export default Dashboard;

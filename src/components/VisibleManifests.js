@@ -17,7 +17,7 @@ const mapStateToManifestListProps = (
     state
 ) => ({
     manifests: getVisibleManifests(
-        state.manifests,
+        state.manifests.items,
         state.manifestFilter
     )
 });
