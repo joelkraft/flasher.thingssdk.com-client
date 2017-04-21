@@ -1,12 +1,12 @@
-import React from 'react';
+import React from 'react'
 
 // Components
-import Dashboard from './Dashboard';
+import Dashboard from './Dashboard'
 
-import '../App.css';
+import '../App.css'
 
-const App = ({ match }) => (
-    <Dashboard match={match} />
-);
+const App = props => {
+    return <Dashboard match={props.match} />
+}
 
-export default App;
+export default App

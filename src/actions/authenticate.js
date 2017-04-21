@@ -15,6 +15,28 @@ export function receiveAuth(token) {
     };
 }
 
+export function clearAuth() {
+    return {
+        type: auth.CLEAR_AUTH
+    };
+}
+
+export function loginError(err) {
+    return {
+        type: auth.DISPLAY_ERROR,
+        flash: err.message
+    }
+}
+
+export function logout() {
+    return function(dispatch) {
+        console.log(document.cookie)
+        document.cookie = 'Authorization='
+        console.log(document.cookie)
+        return dispatch(clearAuth())
+    }
+}
+
 export function sendCredentials(username, password) {
     const encodedCred = btoa(`${username}:${password}`);
     console.log("encodedCred", encodedCred);
@@ -31,11 +53,14 @@ export function sendCredentials(username, password) {
                 const token = json.data.access_token;
                 document.cookie = `Authorization=${token}`;
                 dispatch(receiveAuth(token));
-            });
+            })
+            .catch(err => {
+                dispatch(loginError(err))
+            })
     };
 }
 
-export function checkForToken() {
+export function checkTokenInCookies() {
     return function(dispatch) {
         const cookie = document.cookie;
         if (cookie) {
@@ -43,7 +68,10 @@ export function checkForToken() {
             const parseCookie = c => c.substr(c.search("=") + 1);
             const tokenInCookie = parseCookie(cookie);
             // test
-            // const tokenInCookie = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4NDRlMTdiZWU4NTJiZjgzMzc4ZmQ5ZCIsImV4cCI6MTQ5MjA2NTM3NzA5OSwiaWF0IjoxNDkyMDU4MTc3fQ.vPvb6wQaoQpqDDEk7gqRe_x974C9U0ZEqMxGvX_WQxk"
+            // const tokenInCookie = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4NDRmNDIwNTI1YTAzZmIzNDA1ZDA3NCIsImV4cCI6MTQ5MjQxMDM4MTE2OSwiaWF0IjoxNDkyNDAzMTgxfQ.Gq2sl1U8xtro2nOiQthzCIajGE5zpKiaPkyUENWnGQ8"
+            if (typeof tokenInCookie !== 'string' || tokenInCookie.length === 0) {
+                return false
+            }
             // extract expiration from jwt
             const tokenPayload = tokenInCookie.split(".")[1];
             const decoded = atob(tokenPayload);

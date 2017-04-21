@@ -11,14 +11,12 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import MainReducer from "./reducers/main";
 import { fetchManifests } from "./actions/manifests";
-import { checkForToken } from "./actions/authenticate";
+import { checkTokenInCookies } from "./actions/authenticate";
 
 // Components
 import App from "./components/App";
 import Login from "./components/Login";
-import checkAuth from "./components/CheckAuth";
-
-const CheckAuth = checkAuth(Login, App);
+import CheckAuthContainer from "./components/CheckAuthContainer";
 
 const loggerMiddleware = createLogger();
 
@@ -27,15 +25,19 @@ const store = createStore(
     applyMiddleware(thunkMiddleware, loggerMiddleware)
 );
 
-if (store.dispatch(checkForToken())) {
-    store.dispatch(fetchManifests());
+if (store.dispatch(checkTokenInCookies())) {
+    const token = store.getState().authenticate.token
+    store.dispatch(fetchManifests(token));
 }
 
-const authenticated = true;
-export default () => (
-    <Provider store={store}>
+export default () => {
+   return (<Provider store={store}>
         <Router>
-            <CheckAuth authenticated={authenticated} location={location} />
+            <CheckAuthContainer
+                LoginPage={Login}
+                Protected={App}
+                location={location}
+            />
         </Router>
-    </Provider>
-);
+    </Provider>)
+};

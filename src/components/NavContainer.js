@@ -1,12 +1,24 @@
-import React from "react";
-import { Link, Route } from "react-router-dom";
+import React from "react"
+import { Link } from "react-router-dom"
+import { connect } from 'react-redux'
 
-import Profile from "./DashboardProfile";
+import { logout } from '../actions/authenticate'
 
-const Nav = props => {
+const mapStateToDispatch = (
+    dispatch,
+    ownProps
+) => ({
+    onClick: (e) => {
+        e.preventDefault()
+        dispatch(logout())
+    }
+})
+
+const mapStateToProps = state=>state
+
+const Nav = ({dispatch, onClick }) => {
     return (
         <nav className="navbar navbar-inverse navbar-fixed-top">
-            <Route path="/profile" component={Profile} />
             <div className="container-fluid">
                 <div className="navbar-header">
                     <button
@@ -31,6 +43,7 @@ const Nav = props => {
                         <li><Link to="/">Dashboard</Link></li>
                         <li><Link to="/profile">Profile</Link></li>
                         <li><a href="#">Help</a></li>
+                        <li><a href="#" onClick={onClick}>Log out</a></li>
                     </ul>
                     <form className="navbar-form navbar-right">
                         <input
@@ -42,7 +55,7 @@ const Nav = props => {
                 </div>
             </div>
         </nav>
-    );
-};
+    )
+}
 
-export default Nav;
+export default connect(mapStateToProps,mapStateToDispatch)(Nav)

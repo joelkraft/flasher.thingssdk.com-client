@@ -14,7 +14,8 @@ const mapStateToDispatch = (
     dispatch,
     ownProps
 ) => ({
-    onClick: () => {
+    onClick: (e) => {
+        e.preventDefault()
         dispatch(
             DashboardActions.setManifestFilter(ownProps.filterName)
         )
@@ -25,7 +26,7 @@ const Filter = ( props ) => {
     const { active, text, onClick } = props;
     return active
         ? (<li className="active">
-            <a href="#">{ text } <span className="sr-only">(current)</span></a>
+            <a href="#" onClick={e=>e.preventDefault()}>{ text } <span className="sr-only">(current)</span></a>
           </li>)
         : <li><a href="#" onClick={ onClick }>{ text }</a></li>
 }
