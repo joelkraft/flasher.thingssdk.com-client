@@ -1,5 +1,6 @@
 import axios from "axios";
 
+import { fetchManifests } from './manifests'
 import * as auth from "../actiontypes/authenticate";
 
 export function requestAuth() {
@@ -53,6 +54,7 @@ export function sendCredentials(username, password) {
                 const token = json.data.access_token;
                 document.cookie = `Authorization=${token}`;
                 dispatch(receiveAuth(token));
+                dispatch(fetchManifests(token))
             })
             .catch(err => {
                 dispatch(loginError(err))
