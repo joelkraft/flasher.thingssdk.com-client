@@ -12,7 +12,7 @@ React App for connecting to the [ThingsSDK Flasher API, version 2](https://githu
 * Implement React Router 4
 * Implement Redux
 
-# To-do
+## To-do
 ### Login:
 * Show spinner during login request phase
 * Enable login with github
