@@ -1,3 +1,7 @@
 tr:hover {
   background-color: 'blue';
 }
+
+body {
+  padding-top: 70px;
+}

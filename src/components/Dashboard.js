@@ -3,7 +3,7 @@ import NavContainer from "./NavContainer";
 import { Route } from "react-router-dom";
 
 import DashboardManifests from "./DashboardManifests";
-import DashboardProfile from "./DashboardProfile";
+import DashboardProfile from "./profile/DashboardProfile";
 
 const Dashboard = ({ match }) => {
     return (

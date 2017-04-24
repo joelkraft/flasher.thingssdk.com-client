@@ -2,6 +2,7 @@ import axios from "axios";
 
 import { fetchManifests } from './manifests'
 import * as auth from "../actiontypes/authenticate";
+import { apiUrl } from "../config";
 
 export function requestAuth() {
     return {
@@ -44,7 +45,7 @@ export function sendCredentials(username, password) {
     return function(dispatch) {
         dispatch(requestAuth());
         return axios
-            .get("http://localhost:3001/v2/authorize", {
+            .get`${apiUrl.root}/authorize`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: encodedCred
@@ -70,7 +71,6 @@ export function checkTokenInCookies() {
             const parseCookie = c => c.substr(c.search("=") + 1);
             const tokenInCookie = parseCookie(cookie);
             // test
-            // const tokenInCookie = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4NDRmNDIwNTI1YTAzZmIzNDA1ZDA3NCIsImV4cCI6MTQ5MjQxMDM4MTE2OSwiaWF0IjoxNDkyNDAzMTgxfQ.Gq2sl1U8xtro2nOiQthzCIajGE5zpKiaPkyUENWnGQ8"
             if (typeof tokenInCookie !== 'string' || tokenInCookie.length === 0) {
                 return false
             }

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { apiUrl } from "../config";
 
 import { REQUEST_MANIFESTS, RECEIVE_MANIFESTS } from "../actiontypes/filter";
 
@@ -33,7 +34,7 @@ export function fetchManifests(token) {
     return function(dispatch) {
         dispatch(requestManifests());
         return axios
-            .get("http://localhost:3001/v2", {
+            .get(apiUrl.root, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: authHeaderValue

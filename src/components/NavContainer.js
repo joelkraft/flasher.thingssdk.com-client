@@ -1,22 +1,19 @@
-import React from "react"
-import { Link } from "react-router-dom"
-import { connect } from 'react-redux'
+import React from "react";
+import { Link } from "react-router-dom";
+import { connect } from "react-redux";
 
-import { logout } from '../actions/authenticate'
+import { logout } from "../actions/authenticate";
 
-const mapStateToDispatch = (
-    dispatch,
-    ownProps
-) => ({
-    onClick: (e) => {
-        e.preventDefault()
-        dispatch(logout())
+const mapStateToDispatch = (dispatch, ownProps) => ({
+    onLogoutClick: e => {
+        e.preventDefault();
+        dispatch(logout());
     }
-})
+});
 
-const mapStateToProps = state=>state
+const mapStateToProps = state => state;
 
-const Nav = ({dispatch, onClick }) => {
+const Nav = ({ dispatch, onLogoutClick, onProfileLinkClick }) => {
     return (
         <nav className="navbar navbar-inverse navbar-fixed-top">
             <div className="container-fluid">
@@ -41,9 +38,11 @@ const Nav = ({dispatch, onClick }) => {
                 <div id="navbar" className="navbar-collapse collapse">
                     <ul className="nav navbar-nav navbar-right">
                         <li><Link to="/">Dashboard</Link></li>
-                        <li><Link to="/profile">Profile</Link></li>
+                        <li>
+                            <Link to="/profile">Profile</Link>
+                        </li>
                         <li><a href="#">Help</a></li>
-                        <li><a href="#" onClick={onClick}>Log out</a></li>
+                        <li><a href="#" onClick={onLogoutClick}>Log out</a></li>
                     </ul>
                     <form className="navbar-form navbar-right">
                         <input
@@ -55,7 +54,7 @@ const Nav = ({dispatch, onClick }) => {
                 </div>
             </div>
         </nav>
-    )
-}
+    );
+};
 
-export default connect(mapStateToProps,mapStateToDispatch)(Nav)
+export default connect(mapStateToProps, mapStateToDispatch)(Nav);
