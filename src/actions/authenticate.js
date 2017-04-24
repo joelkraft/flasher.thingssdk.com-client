@@ -45,7 +45,7 @@ export function sendCredentials(username, password) {
     return function(dispatch) {
         dispatch(requestAuth());
         return axios
-            .get`${apiUrl.root}/authorize`, {
+            .get(`${apiUrl.root}/authorize`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: encodedCred
