@@ -40,15 +40,15 @@ class ManifestList extends Component {
     close() {
         this.setState({ showModal: false });
     }
-    handleChange(delta) {
+    handleChange(key, value) {
         this.setState({
             ...this.state,
             currentManifest: {
                 ...this.state.currentManifest,
-                [delta.key]: delta.value
+                [key]: value
             }
         });
-        console.log(this.state);
+        console.log(this.state, value);
     }
     render() {
         return (

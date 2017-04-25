@@ -37,7 +37,7 @@ class ManifestEdit extends Component {
                                         type="text"
                                         value={this.props.manifestDetails[key]}
                                         placeholder="Enter text"
-                                        onChange={this.handleChange}
+                                        onChange={e => {this.props.handleChange(key, e.target.value)}}
                                     />
                                     <FormControl.Feedback />
                                 </FormGroup>
