@@ -5,3 +5,10 @@ tr:hover {
 body {
   padding-top: 70px;
 }
+
+.col-md-2, .col-sm-3 {
+  position: fixed;
+  min-height: 0px;
+  padding-right: 20px;
+  padding-left: 20px;
+}
