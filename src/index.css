@@ -4,6 +4,7 @@ tr:hover {
 
 body {
   padding-top: 70px;
+  word-wrap: break-word;
 }
 
 .col-md-2, .col-sm-3 {

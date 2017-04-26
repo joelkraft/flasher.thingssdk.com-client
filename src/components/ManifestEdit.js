@@ -11,35 +11,7 @@ import {
     Col
 } from "react-bootstrap";
 import { capitalize } from "../util";
-const FlashFormItems = ({ flashes }) => {
-    return (
-        <div>
-            {flashes.map((flash, flashIndex) => (
-                <FormGroup controlId="flash" key={flashIndex}>
-                    <Col sm={4}>
-                        Flash {flashIndex + 1}
-                    </Col>
-                    <Col sm={8}>
-                        <FormControl
-                            type="text"
-                            placeholder="Address"
-                            value={flash.address}
-                        />
-                    </Col>
-                    <Col sm={4} />
-                    <Col sm={8}>
-                        <FormControl
-                            type="text"
-                            placeholder="path"
-                            value={flash.path}
-                        />
-                        <hr />
-                    </Col>
-                </FormGroup>
-            ))}
-        </div>
-    );
-};
+
 const FormItem = ({ name, value, handleChange, editable }) => {
     return (
         <FormGroup controlId="formBasicText">
@@ -72,7 +44,7 @@ const EditForm = ({ items, handleChange, editable }) => (
                     const flashes = value.reduce((result, flashItem, index) => {
                         const flash = Object.keys(flashItem).filter(key=>key!=='_id').map(key => {
                             return {
-                                name: `${name} ${index} ${key}`,
+                                name: `${name} ${capitalize(key)} ${index}`,
                                 value: flashItem[key]
                             };
                         });
@@ -95,20 +67,6 @@ const EditForm = ({ items, handleChange, editable }) => (
     </Form>
 );
 
-const DisplayDetails = ({ items }) => (
-    <Table striped bordered>
-        <thead>
-            <tr><th>Name</th><th>Value</th></tr>
-        </thead>
-        <tbody>
-            {items.map(({ name, value }, index) => (
-                <tr key={index}>
-                    <td>{name}</td><td>{value}</td>
-                </tr>
-            ))}
-        </tbody>
-    </Table>
-);
 class ManifestEdit extends Component {
     render() {
         const {
