@@ -6,56 +6,93 @@ import {
     FormControl,
     ControlLabel,
     Table,
-    Label
+    Label,
+    Form,
+    Col
 } from "react-bootstrap";
 import { capitalize } from "../util";
-
-const FormItem = ({ name, value, index, handleChange }) => {
+const FlashFormItems = ({ flashes }) => {
+    return (
+        <div>
+            {flashes.map((flash, flashIndex) => (
+                <FormGroup controlId="flash" key={flashIndex}>
+                    <Col sm={4}>
+                        Flash {flashIndex + 1}
+                    </Col>
+                    <Col sm={8}>
+                        <FormControl
+                            type="text"
+                            placeholder="Address"
+                            value={flash.address}
+                        />
+                    </Col>
+                    <Col sm={4} />
+                    <Col sm={8}>
+                        <FormControl
+                            type="text"
+                            placeholder="path"
+                            value={flash.path}
+                        />
+                        <hr />
+                    </Col>
+                </FormGroup>
+            ))}
+        </div>
+    );
+};
+const FormItem = ({ name, value, handleChange, editable }) => {
     return (
         <FormGroup controlId="formBasicText">
-            <ControlLabel>
+            <Col componentClass={ControlLabel} sm={4}>
                 {capitalize(name)}
-            </ControlLabel>
-            {Array.isArray(value)
-                ? value.map((flash, flashIndex) => (
-                      <FormGroup controlId="flash" key={flashIndex}>
-                          <FormControl
-                              type="text"
-                              placeholder="Address"
-                              value={flash.address}
-                          /><br />
-                          <FormControl
-                              type="text"
-                              placeholder="path"
-                              value={flash.path}
-                          /><hr />
-                      </FormGroup>
-                  ))
-                : <FormControl
-                      type="text"
-                      value={value}
-                      placeholder={`Enter ${name}`}
-                      onChange={e => {
-                          handleChange(name, e.target.value);
-                      }}
-                  />}
-            <FormControl.Feedback />
+            </Col>
+            <Col sm={8}>
+                {editable
+                    ? <FormControl
+                          type="text"
+                          value={value}
+                          placeholder={`Enter ${name}`}
+                          onChange={e => {
+                              handleChange(name, e.target.value);
+                          }}
+                      />
+                    : <FormControl.Static>
+                          {value}
+                      </FormControl.Static>}
+            </Col>
         </FormGroup>
     );
 };
 
-const EditForm = ({ items, handleChange }) => (
-    <form>
-        {items.map(({ name, value }, index) => (
-            <FormItem
-                index={index}
-                value={value}
-                name={name}
-                handleChange={handleChange}
-                key={index}
-            />
-        ))}
-    </form>
+const EditForm = ({ items, handleChange, editable }) => (
+    <Form horizontal>
+        {items
+            .reduce((array, { name, value }) => {
+                if (Array.isArray(value)) {
+                    const flashes = value.reduce((result, flashItem, index) => {
+                        const flash = Object.keys(flashItem).filter(key=>key!=='_id').map(key => {
+                            return {
+                                name: `${name} ${index} ${key}`,
+                                value: flashItem[key]
+                            };
+                        });
+                        return [ ...result, ...flash ]
+                    }, []);
+                    return [...array, ...flashes];
+                }
+                return [...array, { name, value }];
+            })
+            .map(({ name, value }, index) => (
+                <FormItem
+                    index={index}
+                    value={value}
+                    name={name}
+                    handleChange={handleChange}
+                    key={index}
+                    editable={editable}
+                />
+            ))}
+    </Form>
 );
 
 const DisplayDetails = ({ items }) => (
@@ -108,12 +145,13 @@ class ManifestEdit extends Component {
                         : <Label bsStyle="danger">UNPUBLISHED</Label>}
                 </Modal.Header>
                 <Modal.Body>
-                    {isAuthor
-                        ? <EditForm
-                              items={formOrder}
-                              handleChange={this.props.handleChange}
-                          />
-                        : <DisplayDetails items={formOrder} />}
+                    {
+                        <EditForm
+                            items={formOrder}
+                            handleChange={this.props.handleChange}
+                            editable={isAuthor}
+                        />
+                    }
                 </Modal.Body>
                 <Modal.Footer>
                     {isAuthor
