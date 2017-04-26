@@ -1,7 +1,11 @@
 // Libs
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { saveManifest } from "../actions/manifests";
 import ManifestEdit from "./ManifestEdit";
+import axios from "axios";
+import { getIdFromUrl } from "../util";
+import { apiUrl } from "../config";
 
 function getVisibleManifests(manifests, filter) {
     switch (filter) {
@@ -23,8 +27,17 @@ function renderLabel(cond, yes, no) {
 }
 const mapStateToManifestListProps = (state, ownProps) => ({
     manifests: getVisibleManifests(state.manifests.items, state.manifestFilter),
-    open: ownProps.open
+    open: ownProps.open,
+    token: state.authenticate.token
 });
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onSubmit: (item, token) => {
+            dispatch(saveManifest(item, token));
+        }
+    };
+};
 
 class ManifestList extends Component {
     constructor(props) {
@@ -34,8 +47,29 @@ class ManifestList extends Component {
             currentManifest: {}
         };
     }
-    open(manifest) {
-        this.setState({ showModal: true, currentManifest: manifest });
+    open(item) {
+        const authHeaderValue = `Bearer: ${this.props.token}`;
+        const id = getIdFromUrl(item.manifest);
+        axios
+            .get(`${apiUrl.root}/manifests/${id}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: authHeaderValue
+                }
+            })
+            .then(({ data }) => {
+                this.setState({
+                    ...this.state,
+                    currentManifest: {
+                        ...data,
+                        ...item
+                    },
+                    showModal: true
+                });
+            })
+            .catch(err => {
+                throw err;
+            });
     }
     close() {
         this.setState({ showModal: false });
@@ -50,6 +84,7 @@ class ManifestList extends Component {
         });
         console.log(this.state, value);
     }
+
     render() {
         return (
             <div>
@@ -58,6 +93,12 @@ class ManifestList extends Component {
                     showModal={this.state.showModal}
                     handleChange={this.handleChange.bind(this)}
                     manifestDetails={this.state.currentManifest}
+                    handleSubmit={function() {
+                        this.props.onSubmit(
+                            this.state.currentManifest,
+                            this.props.token
+                        );
+                    }.bind(this)}
                 />
                 <table className="table table-striped">
                     <thead>
@@ -96,18 +137,18 @@ class ManifestList extends Component {
                                             published,
                                             {
                                                 type: "success",
-                                                name: "published"
+                                                name: "PUBLISHED"
                                             },
                                             {
                                                 type: "danger",
-                                                name: "unpublished"
+                                                name: "UNPUBLISHED"
                                             }
                                         )}
                                     </td>
                                     <td>
                                         {renderLabel(isAuthor, {
                                             type: "info",
-                                            name: "author"
+                                            name: "AUTHOR"
                                         })}
                                     </td>
                                 </tr>
@@ -120,4 +161,6 @@ class ManifestList extends Component {
     }
 }
 
-export default connect(mapStateToManifestListProps)(ManifestList);
+export default connect(mapStateToManifestListProps, mapDispatchToProps)(
+    ManifestList
+);

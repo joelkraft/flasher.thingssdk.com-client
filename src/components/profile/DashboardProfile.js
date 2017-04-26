@@ -25,12 +25,16 @@ class DashboardProfile extends Component {
 
     componentDidMount() {
         const { dispatch, token } = this.props;
-        dispatch(fetchUserInfo(token)).then(info => {
-            this.setState({
-                ...this.state,
-                info
+        dispatch(fetchUserInfo(token))
+            .then(info => {
+                this.setState({
+                    ...this.state,
+                    info
+                });
+            })
+            .catch(err => {
+                throw err;
             });
-        });
     }
 
     onFieldChange(key, event) {
@@ -126,7 +130,11 @@ class DashboardProfile extends Component {
                                         this.setState({
                                             ...this.state,
                                             info: this.props.userInfo,
-                                            flashMessage: {type:'notice', text:'Form reset to original values', title: 'Cancelled:'}
+                                            flashMessage: {
+                                                type: "notice",
+                                                text: "Form reset to original values",
+                                                title: "Cancelled:"
+                                            }
                                         });
                                     }}
                                 >

@@ -59,7 +59,10 @@ export function fetchUserInfo(token) {
                 dispatch(receiveUserInfo(data));
                 return data.data;
             })
-            .catch(err => console.log("ERRERER", err));
+            .catch(err => {
+                console.log("ERRERER", err);
+                throw err;
+            });
     };
 }
 
@@ -77,6 +80,8 @@ export function saveUserInfo(userDocumentObject, token) {
                 dispatch(userInfoIsSet(data.data));
                 return data.data;
             })
-            .catch(err => { throw err });
+            .catch(err => {
+                throw err;
+            });
     };
 }

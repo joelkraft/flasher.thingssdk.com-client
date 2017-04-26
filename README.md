@@ -11,6 +11,7 @@ React App for connecting to the [ThingsSDK Flasher API, version 2](https://githu
 * Side bar controls manifest list filter
 * Implement React Router 4
 * Implement Redux
+* Show manifest details in a modal
 
 ## To-do
 ### Login:
@@ -22,7 +23,6 @@ React App for connecting to the [ThingsSDK Flasher API, version 2](https://githu
 * Send email notice about password changes
 * Diff app state against local state before submitting edits, or cancelling to save api call/ui update
 ### Manifest Page:
-* Show manifest details in a modal
 * If user authored, make editable
 * If admin, make editable
 * New manifest form
@@ -32,7 +32,6 @@ React App for connecting to the [ThingsSDK Flasher API, version 2](https://githu
 * View / approve / edit / delete manifests
 ### Signup page:
 * Create
-* Send verification email
 * Only enable verified accounts, show notice
 ### Tests
 
