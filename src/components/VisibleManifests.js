@@ -34,7 +34,7 @@ const mapStateToManifestListProps = (state, ownProps) => ({
 const mapDispatchToProps = dispatch => {
     return {
         onSubmit: (item, token) => {
-            dispatch(saveManifest(item, token));
+            return dispatch(saveManifest(item, token));
         }
     };
 };
@@ -75,14 +75,39 @@ class ManifestList extends Component {
         this.setState({ showModal: false });
     }
     handleChange(key, value) {
-        this.setState({
-            ...this.state,
-            currentManifest: {
-                ...this.state.currentManifest,
-                [key]: value
-            }
-        });
-        console.log(this.state, value);
+        let flash = null;
+        if (key.startsWith("flash")) {
+            const keyParts = key.split(" ");
+            flash = {
+                key: keyParts[1].trim().toLowerCase(),
+                index: parseInt(keyParts[2].trim())
+            };
+
+            this.setState({
+                ...this.state,
+                currentManifest: {
+                    ...this.state.currentManifest,
+                    flash: this.state.currentManifest.flash.map(
+                        (item, index, arr) => {
+                            return index === flash.index
+                                ? {
+                                      ...arr[index],
+                                      [flash.key]: value
+                                  }
+                                : { ...item };
+                        }
+                    )
+                }
+            });
+        } else {
+            this.setState({
+                ...this.state,
+                currentManifest: {
+                    ...this.state.currentManifest,
+                    [key]: value
+                }
+            });
+        }
     }
 
     render() {
@@ -94,10 +119,17 @@ class ManifestList extends Component {
                     handleChange={this.handleChange.bind(this)}
                     manifestDetails={this.state.currentManifest}
                     handleSubmit={function() {
-                        this.props.onSubmit(
-                            this.state.currentManifest,
-                            this.props.token
-                        );
+                        this.props
+                            .onSubmit(
+                                this.state.currentManifest,
+                                this.props.token
+                            )
+                            .then(() => {
+                                this.setState({
+                                    ...this.state,
+                                    showModal: false
+                                });
+                            });
                     }.bind(this)}
                 />
                 <table className="table table-striped">

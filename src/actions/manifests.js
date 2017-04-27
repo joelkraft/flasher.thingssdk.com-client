@@ -58,7 +58,6 @@ export function requestSaveManifest() {
 }
 
 export function manifestWasSaved(item) {
-    console.log(item)
     return {
         type: MANIFEST_WAS_SAVED,
         item
