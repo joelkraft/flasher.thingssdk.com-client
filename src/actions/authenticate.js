@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { fetchManifests } from './manifests'
+import { fetchUserInfo } from './user'
 import * as auth from "../actiontypes/authenticate";
 import { apiUrl } from "../config";
 
@@ -41,7 +41,6 @@ export function logout() {
 
 export function sendCredentials(username, password) {
     const encodedCred = btoa(`${username}:${password}`);
-    console.log("encodedCred", encodedCred);
     return function(dispatch) {
         dispatch(requestAuth());
         return axios
@@ -55,7 +54,7 @@ export function sendCredentials(username, password) {
                 const token = json.data.access_token;
                 document.cookie = `Authorization=${token}`;
                 dispatch(receiveAuth(token));
-                dispatch(fetchManifests(token))
+                return dispatch(fetchUserInfo(token))
             })
             .catch(err => {
                 dispatch(loginError(err))

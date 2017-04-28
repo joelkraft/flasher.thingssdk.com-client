@@ -12,6 +12,8 @@ React App for connecting to the [ThingsSDK Flasher API, version 2](https://githu
 * Implement React Router 4
 * Implement Redux
 * Show manifest details in a modal
+* If user authored, make editable
+* If admin, make editable
 
 ## To-do
 ### Login:
@@ -23,8 +25,6 @@ React App for connecting to the [ThingsSDK Flasher API, version 2](https://githu
 * Send email notice about password changes
 * Diff app state against local state before submitting edits, or cancelling to save api call/ui update
 ### Manifest Page:
-* If user authored, make editable
-* If admin, make editable
 * New manifest form
 * Email notification to admins on new manifest submission
 ### Admin interface

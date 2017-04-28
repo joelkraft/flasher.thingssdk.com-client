@@ -80,7 +80,6 @@ class DashboardProfile extends Component {
     }
 
     render() {
-        console.log(this);
         return (
             <div className="container-fluid">
                 <div className="row">

@@ -5,7 +5,6 @@ import {
     FormGroup,
     FormControl,
     ControlLabel,
-    Table,
     Label,
     Form,
     Col
@@ -70,7 +69,6 @@ const EditForm = ({ items, handleChange, editable }) => (
 class ManifestEdit extends Component {
     render() {
         const {
-            manifest,
             name,
             version,
             board,
@@ -81,6 +79,7 @@ class ManifestEdit extends Component {
             download,
             flash
         } = this.props.manifestDetails;
+        const { isAdmin } = this.props;
         const formOrder = [
             { name: "name", value: name },
             { name: "board", value: board },
@@ -90,11 +89,12 @@ class ManifestEdit extends Component {
             { name: "download", value: download },
             { name: "flash", value: flash }
         ];
+        const isEditor = isAuthor || isAdmin;
         return (
             <Modal show={this.props.showModal} onHide={this.props.close}>
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        {isAuthor ? "Edit" : "View"} Manifest
+                        {isEditor ? "Edit" : "View"} Manifest
                     </Modal.Title>
                     {isAuthor ? <Label bsStyle="info">AUTHOR</Label> : null}
                     &nbsp;
@@ -107,12 +107,12 @@ class ManifestEdit extends Component {
                         <EditForm
                             items={formOrder}
                             handleChange={this.props.handleChange}
-                            editable={isAuthor}
+                            editable={isEditor}
                         />
                     }
                 </Modal.Body>
                 <Modal.Footer>
-                    {isAuthor
+                    {isEditor
                         ? <Button
                               bsStyle="primary"
                               onClick={this.props.handleSubmit}
@@ -121,7 +121,7 @@ class ManifestEdit extends Component {
                           </Button>
                         : null}
                     <Button onClick={this.props.close}>
-                        {isAuthor ? "Cancel" : "Close"}
+                        {isEditor ? "Cancel" : "Close"}
                     </Button>
                 </Modal.Footer>
             </Modal>

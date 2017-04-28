@@ -8,13 +8,11 @@ const mapStateToProps = (state) => ({
 })
 
 const Login = ({ dispatch, flash }) => {
-    console.log("Login rendred");
     let username, password;
     const onSubmit = e => {
         e.preventDefault();
-        dispatch(sendCredentials(username.value, password.value));
-        username.value = "";
-        password.value = "";
+        dispatch(sendCredentials(username.value, password.value))
+        .catch(err => {throw err});
     };
 
     const flashMessage = message => (

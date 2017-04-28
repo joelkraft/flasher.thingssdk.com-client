@@ -10,7 +10,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import MainReducer from "./reducers/main";
-import { fetchManifests } from "./actions/manifests";
+import { fetchUserInfo } from "./actions/user";
 import { checkTokenInCookies } from "./actions/authenticate";
 
 // Components
@@ -27,7 +27,7 @@ const store = createStore(
 
 if (store.dispatch(checkTokenInCookies())) {
     const token = store.getState().authenticate.token
-    store.dispatch(fetchManifests(token));
+    store.dispatch(fetchUserInfo(token));
 }
 
 export default () => {

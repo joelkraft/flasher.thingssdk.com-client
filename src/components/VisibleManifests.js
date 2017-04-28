@@ -1,7 +1,7 @@
 // Libs
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { saveManifest } from "../actions/manifests";
+import { fetchManifests, saveManifest } from "../actions/manifests";
 import ManifestEdit from "./ManifestEdit";
 import axios from "axios";
 import { getIdFromUrl } from "../util";
@@ -28,14 +28,16 @@ function renderLabel(cond, yes, no) {
 const mapStateToManifestListProps = (state, ownProps) => ({
     manifests: getVisibleManifests(state.manifests.items, state.manifestFilter),
     open: ownProps.open,
-    token: state.authenticate.token
+    token: state.authenticate.token,
+    isAdmin: state.user.info.isAdmin
 });
 
 const mapDispatchToProps = dispatch => {
     return {
         onSubmit: (item, token) => {
             return dispatch(saveManifest(item, token));
-        }
+        },
+        fetchManifestsOnMount: token =>  dispatch(fetchManifests(token))
     };
 };
 
@@ -80,7 +82,7 @@ class ManifestList extends Component {
             const keyParts = key.split(" ");
             flash = {
                 key: keyParts[1].trim().toLowerCase(),
-                index: parseInt(keyParts[2].trim())
+                index: parseInt(keyParts[2].trim(), 10)
             };
 
             this.setState({
@@ -110,6 +112,15 @@ class ManifestList extends Component {
         }
     }
 
+    componentDidMount() {
+        const { token } = this.props;
+        
+        this.props
+            .fetchManifestsOnMount(token)
+            .catch(err => {
+                throw err;
+            });
+    }
     render() {
         return (
             <div>
@@ -118,6 +129,7 @@ class ManifestList extends Component {
                     showModal={this.state.showModal}
                     handleChange={this.handleChange.bind(this)}
                     manifestDetails={this.state.currentManifest}
+                    isAdmin={this.props.isAdmin}
                     handleSubmit={function() {
                         this.props
                             .onSubmit(
