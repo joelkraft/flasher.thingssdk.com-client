@@ -7,7 +7,10 @@ import {
     ControlLabel,
     Label,
     Form,
-    Col
+    Col,
+    Panel,
+    ListGroup,
+    ListGroupItem
 } from "react-bootstrap";
 import { capitalize } from "../util";
 
@@ -35,34 +38,74 @@ const FormItem = ({ name, value, handleChange, editable }) => {
     );
 };
 
+const FlashGroup = ({ group, editable, handleChange, header }) => (
+    <Panel header={header.toString()}>
+        {group.map(({ name, value }, index) => (
+            <FormItem
+                key={index}
+                name={name}
+                value={value}
+                editable={editable}
+                handleChange={handleChange}
+            />
+        ))}
+    </Panel>
+);
+
+const FlashPanel = ({ flash, editable, handleChange = { handleChange } }) => {
+    const { frequency, images } = flash;
+    return (
+        <Panel header="Flash">
+            <ListGroup fill>
+                <ListGroupItem>
+                    <FormItem
+                        name="Frequency"
+                        value={frequency}
+                        editable={editable}
+                        handleChange={handleChange}
+                    />
+                </ListGroupItem>
+            </ListGroup>
+            {images.map(({ address, path, sha }, index) => {
+                const group = [
+                    { name: "address", value: address },
+                    { name: "path", value: path },
+                    { name: "sha", value: sha }
+                ];
+                return (
+                    <FlashGroup
+                        handleChange={handleChange}
+                        editable={editable}
+                        group={group}
+                        key={index}
+                        header={index}
+                    />
+                );
+            })}
+        </Panel>
+    );
+};
+
 const EditForm = ({ items, handleChange, editable }) => (
     <Form horizontal>
-        {items
-            .reduce((array, { name, value }) => {
-                if (Array.isArray(value)) {
-                    const flashes = value.reduce((result, flashItem, index) => {
-                        const flash = Object.keys(flashItem).filter(key=>key!=='_id').map(key => {
-                            return {
-                                name: `${name} ${capitalize(key)} ${index}`,
-                                value: flashItem[key]
-                            };
-                        });
-                        return [ ...result, ...flash ]
-                    }, []);
-                    return [...array, ...flashes];
-                }
-                return [...array, { name, value }];
-            })
-            .map(({ name, value }, index) => (
-                <FormItem
-                    index={index}
-                    value={value}
-                    name={name}
-                    handleChange={handleChange}
-                    key={index}
-                    editable={editable}
-                />
-            ))}
+        {items.map(
+            ({ name, value, type }, index) =>
+                (name === "flash"
+                    ? <FlashPanel
+                          flash={value}
+                          editable={editable}
+                          key={index}
+                      />
+                    : <FormItem
+                          index={index}
+                          value={value}
+                          name={name}
+                          type={type}
+                          handleChange={handleChange}
+                          key={index}
+                          editable={editable}
+                      />)
+        )}
     </Form>
 );
 
@@ -85,7 +128,7 @@ class ManifestEdit extends Component {
             { name: "board", value: board },
             { name: "revision", value: revision },
             { name: "version", value: version },
-            { name: "description", value: description },
+            { name: "description", value: description, type: "textarea" },
             { name: "download", value: download },
             { name: "flash", value: flash }
         ];

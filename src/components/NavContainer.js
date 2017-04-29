@@ -11,9 +11,11 @@ const mapStateToDispatch = (dispatch, ownProps) => ({
     }
 });
 
-const mapStateToProps = state => state;
+const mapStateToProps = state => ({
+    user: state.user.info
+});
 
-const Nav = ({ dispatch, onLogoutClick, onProfileLinkClick }) => {
+const Nav = ({ dispatch, onLogoutClick, onProfileLinkClick, user }) => {
     return (
         <nav className="navbar navbar-inverse navbar-fixed-top">
             <div className="container-fluid">
@@ -51,6 +53,16 @@ const Nav = ({ dispatch, onLogoutClick, onProfileLinkClick }) => {
                             placeholder="Search..."
                         />
                     </form>
+                    <p className="navbar-text navbar-right">
+                        Signed in as
+                        {" "}
+                        <span id="login-name">{`${user.fName} ${user.lName}`}</span>
+                        {" "}
+                        {user.isAdmin
+                        ? <span className="label label-warning">ADMIN</span>
+                        : null}
+                    </p>
+
                 </div>
             </div>
         </nav>
