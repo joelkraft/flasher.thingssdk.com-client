@@ -14,7 +14,7 @@ import {
 } from "react-bootstrap";
 import { capitalize } from "../util";
 
-const FormItem = ({ name, value, handleChange, editable }) => {
+const FormItem = ({ name, value, handleChange, editable, flashIndex }) => {
     return (
         <FormGroup controlId="formBasicText">
             <Col componentClass={ControlLabel} sm={4}>
@@ -27,7 +27,7 @@ const FormItem = ({ name, value, handleChange, editable }) => {
                           value={value}
                           placeholder={`Enter ${name}`}
                           onChange={e => {
-                              handleChange(name, e.target.value);
+                              handleChange(name, e.target.value, flashIndex);
                           }}
                       />
                     : <FormControl.Static>
@@ -38,8 +38,10 @@ const FormItem = ({ name, value, handleChange, editable }) => {
     );
 };
 
-const FlashGroup = ({ group, editable, handleChange, header }) => (
-    <Panel header={header.toString()}>
+const FlashGroup = ({ group, editable, handleChange, header,flashIndex }) => {
+    const headerElement = <p><Label bsStyle="info">{header}</Label></p>
+    return (
+    <Panel header={headerElement}>
         {group.map(({ name, value }, index) => (
             <FormItem
                 key={index}
@@ -47,19 +49,20 @@ const FlashGroup = ({ group, editable, handleChange, header }) => (
                 value={value}
                 editable={editable}
                 handleChange={handleChange}
+                flashIndex={flashIndex}
             />
         ))}
     </Panel>
-);
+)};
 
-const FlashPanel = ({ flash, editable, handleChange = { handleChange } }) => {
+const FlashPanel = ({ flash, editable, handleChange }) => {
     const { frequency, images } = flash;
     return (
         <Panel header="Flash">
             <ListGroup fill>
                 <ListGroupItem>
                     <FormItem
-                        name="Frequency"
+                        name="frequency"
                         value={frequency}
                         editable={editable}
                         handleChange={handleChange}
@@ -79,6 +82,7 @@ const FlashPanel = ({ flash, editable, handleChange = { handleChange } }) => {
                         group={group}
                         key={index}
                         header={index}
+                        flashIndex={index}
                     />
                 );
             })}
@@ -86,8 +90,8 @@ const FlashPanel = ({ flash, editable, handleChange = { handleChange } }) => {
     );
 };
 
-const EditForm = ({ items, handleChange, editable }) => (
-    <Form horizontal>
+const EditForm = ({ items, handleChange, editable, onSubmit }) => (
+    <Form horizontal onSubmit={onSubmit}>
         {items.map(
             ({ name, value, type }, index) =>
                 (name === "flash"
@@ -95,6 +99,7 @@ const EditForm = ({ items, handleChange, editable }) => (
                           flash={value}
                           editable={editable}
                           key={index}
+                          handleChange={handleChange}
                       />
                     : <FormItem
                           index={index}
@@ -151,6 +156,7 @@ class ManifestEdit extends Component {
                             items={formOrder}
                             handleChange={this.props.handleChange}
                             editable={isEditor}
+                            onSubmit={this.props.handleSubmit}
                         />
                     }
                 </Modal.Body>

@@ -76,31 +76,41 @@ class ManifestList extends Component {
     close() {
         this.setState({ showModal: false });
     }
-    handleChange(key, value) {
+    handleChange(key, value, index) {
         let flash = null;
-        if (key.startsWith("flash")) {
-            const keyParts = key.split(" ");
-            flash = {
-                key: keyParts[1].trim().toLowerCase(),
-                index: parseInt(keyParts[2].trim(), 10)
-            };
-
+        if (['address', 'path', 'sha'].indexOf(key) > -1) {
+            if (typeof index === 'undefined') {
+                throw new Error('No index supplied for Flash image')
+            }
             this.setState({
                 ...this.state,
                 currentManifest: {
                     ...this.state.currentManifest,
-                    flash: this.state.currentManifest.flash.map(
-                        (item, index, arr) => {
-                            return index === flash.index
-                                ? {
-                                      ...arr[index],
-                                      [flash.key]: value
-                                  }
-                                : { ...item };
-                        }
-                    )
+                    flash: {
+                        ...this.state.currentManifest.flash,
+                        images: this.state.currentManifest.flash.images.map((image, imageIndex) => {
+                            if (imageIndex === index) {
+                                return {
+                                    ...image,
+                                    [key]: value
+                                }
+                            }
+                            return image
+                        })
+                    }
                 }
-            });
+            })
+        } else if (key === 'frequency') {
+            this.setState({
+                ...this.state,
+                currentManifest: {
+                    ...this.state.currentManifest,
+                    flash: {
+                        ...this.state.currentManifest.flash,
+                        [key]: value
+                    }
+                }
+            })
         } else {
             this.setState({
                 ...this.state,
