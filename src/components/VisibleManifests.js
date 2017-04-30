@@ -37,7 +37,7 @@ const mapDispatchToProps = dispatch => {
         onSubmit: (item, token) => {
             return dispatch(saveManifest(item, token));
         },
-        fetchManifestsOnMount: token =>  dispatch(fetchManifests(token))
+        fetchManifestsOnMount: token => dispatch(fetchManifests(token))
     };
 };
 
@@ -78,9 +78,9 @@ class ManifestList extends Component {
     }
     handleChange(key, value, index) {
         let flash = null;
-        if (['address', 'path', 'sha'].indexOf(key) > -1) {
-            if (typeof index === 'undefined') {
-                throw new Error('No index supplied for Flash image')
+        if (["address", "path", "sha"].indexOf(key) > -1) {
+            if (typeof index === "undefined") {
+                throw new Error("No index supplied for Flash image");
             }
             this.setState({
                 ...this.state,
@@ -88,19 +88,21 @@ class ManifestList extends Component {
                     ...this.state.currentManifest,
                     flash: {
                         ...this.state.currentManifest.flash,
-                        images: this.state.currentManifest.flash.images.map((image, imageIndex) => {
-                            if (imageIndex === index) {
-                                return {
-                                    ...image,
-                                    [key]: value
+                        images: this.state.currentManifest.flash.images.map(
+                            (image, imageIndex) => {
+                                if (imageIndex === index) {
+                                    return {
+                                        ...image,
+                                        [key]: value
+                                    };
                                 }
+                                return image;
                             }
-                            return image
-                        })
+                        )
                     }
                 }
-            })
-        } else if (key === 'frequency') {
+            });
+        } else if (key === "frequency") {
             this.setState({
                 ...this.state,
                 currentManifest: {
@@ -110,7 +112,7 @@ class ManifestList extends Component {
                         [key]: value
                     }
                 }
-            })
+            });
         } else {
             this.setState({
                 ...this.state,
@@ -121,15 +123,53 @@ class ManifestList extends Component {
             });
         }
     }
+    deleteFlashImage(indexToRemove) {
+        console.log("delete fired. index:", indexToRemove);
+        this.setState({
+            ...this.state,
+            currentManifest: {
+                ...this.state.currentManifest,
+                flash: {
+                    ...this.state.currentManifest.flash,
+                    images: [
+                        ...this.state.currentManifest.flash.images.slice(
+                            0,
+                            indexToRemove
+                        ),
+                        ...this.state.currentManifest.flash.images.slice(
+                            indexToRemove + 1
+                        )
+                    ]
+                }
+            }
+        });
+    }
+    createFlashImage() {
+        this.setState({
+            ...this.state,
+            currentManifest: {
+                ...this.state.currentManifest,
+                flash: {
+                    ...this.state.currentManifest.flash,
+                    images: [
+                        ...this.state.currentManifest.flash.images,
+                        {
+                            address: "",
+                            path: "",
+                            sha: ""
+                        }
+                    ]
+                }
+            }
+        });
+    }
 
     componentDidMount() {
         const { token } = this.props;
-        
-        this.props
-            .fetchManifestsOnMount(token)
-            .catch(err => {
-                throw err;
-            });
+
+        this.props.fetchManifestsOnMount(token).catch(err => {
+            throw err;
+        });
     }
     render() {
         return (
@@ -138,6 +178,8 @@ class ManifestList extends Component {
                     close={this.close.bind(this)}
                     showModal={this.state.showModal}
                     handleChange={this.handleChange.bind(this)}
+                    deleteFlashImage={this.deleteFlashImage.bind(this)}
+                    createFlashImage={this.createFlashImage.bind(this)}
                     manifestDetails={this.state.currentManifest}
                     isAdmin={this.props.isAdmin}
                     handleSubmit={function() {

@@ -38,24 +38,32 @@ const FormItem = ({ name, value, handleChange, editable, flashIndex }) => {
     );
 };
 
-const FlashGroup = ({ group, editable, handleChange, header,flashIndex }) => {
-    const headerElement = <p><Label bsStyle="info">{header}</Label></p>
+const FlashGroup = ({ group, editable, handleChange, deleteFlashImage, header, flashIndex }) => {
+    const headerElement = (
+        <div>
+            <Label bsStyle="info">{header}</Label>
+            <Button bsStyle="danger" className="btn-xs pull-right" onClick={deleteFlashImage}>
+                Delete
+            </Button>
+        </div>
+    );
     return (
-    <Panel header={headerElement}>
-        {group.map(({ name, value }, index) => (
-            <FormItem
-                key={index}
-                name={name}
-                value={value}
-                editable={editable}
-                handleChange={handleChange}
-                flashIndex={flashIndex}
-            />
-        ))}
-    </Panel>
-)};
+        <Panel header={headerElement}>
+            {group.map(({ name, value }, index) => (
+                <FormItem
+                    key={index}
+                    name={name}
+                    value={value}
+                    editable={editable}
+                    handleChange={handleChange}
+                    flashIndex={flashIndex}
+                />
+            ))}
+        </Panel>
+    );
+};
 
-const FlashPanel = ({ flash, editable, handleChange }) => {
+const FlashPanel = ({ flash, editable, handleChange, deleteFlashImage, createFlashImage }) => {
     const { frequency, images } = flash;
     return (
         <Panel header="Flash">
@@ -83,14 +91,16 @@ const FlashPanel = ({ flash, editable, handleChange }) => {
                         key={index}
                         header={index}
                         flashIndex={index}
+                        deleteFlashImage={()=>deleteFlashImage(index)}
                     />
                 );
             })}
+            <Button bsStyle="default" className="pull-right" onClick={createFlashImage}>New Image</Button>
         </Panel>
     );
 };
 
-const EditForm = ({ items, handleChange, editable, onSubmit }) => (
+const EditForm = ({ items, handleChange, deleteFlashImage, createFlashImage, editable, onSubmit }) => (
     <Form horizontal onSubmit={onSubmit}>
         {items.map(
             ({ name, value, type }, index) =>
@@ -100,6 +110,8 @@ const EditForm = ({ items, handleChange, editable, onSubmit }) => (
                           editable={editable}
                           key={index}
                           handleChange={handleChange}
+                          deleteFlashImage={deleteFlashImage}
+                          createFlashImage={createFlashImage}
                       />
                     : <FormItem
                           index={index}
@@ -155,6 +167,8 @@ class ManifestEdit extends Component {
                         <EditForm
                             items={formOrder}
                             handleChange={this.props.handleChange}
+                            deleteFlashImage={this.props.deleteFlashImage}
+                            createFlashImage={this.props.createFlashImage}
                             editable={isEditor}
                             onSubmit={this.props.handleSubmit}
                         />
