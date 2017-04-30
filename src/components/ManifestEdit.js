@@ -14,7 +14,7 @@ import {
 } from "react-bootstrap";
 import { capitalize } from "../util";
 
-const FormItem = ({ name, value, handleChange, editable, flashIndex }) => {
+const FormItem = ({ name, value, handleChange, editable, flashIndex, componentClass }) => {
     return (
         <FormGroup controlId="formBasicText">
             <Col componentClass={ControlLabel} sm={4}>
@@ -29,6 +29,7 @@ const FormItem = ({ name, value, handleChange, editable, flashIndex }) => {
                           onChange={e => {
                               handleChange(name, e.target.value, flashIndex);
                           }}
+                          componentClass={componentClass}
                       />
                     : <FormControl.Static>
                           {value}
@@ -103,7 +104,7 @@ const FlashPanel = ({ flash, editable, handleChange, deleteFlashImage, createFla
 const EditForm = ({ items, handleChange, deleteFlashImage, createFlashImage, editable, onSubmit }) => (
     <Form horizontal onSubmit={onSubmit}>
         {items.map(
-            ({ name, value, type }, index) =>
+            ({ name, value, componentClass }, index) =>
                 (name === "flash"
                     ? <FlashPanel
                           flash={value}
@@ -117,7 +118,7 @@ const EditForm = ({ items, handleChange, deleteFlashImage, createFlashImage, edi
                           index={index}
                           value={value}
                           name={name}
-                          type={type}
+                          componentClass={componentClass}
                           handleChange={handleChange}
                           key={index}
                           editable={editable}
@@ -145,7 +146,7 @@ class ManifestEdit extends Component {
             { name: "board", value: board },
             { name: "revision", value: revision },
             { name: "version", value: version },
-            { name: "description", value: description, type: "textarea" },
+            { name: "description", value: description, componentClass: "textarea" },
             { name: "download", value: download },
             { name: "flash", value: flash }
         ];

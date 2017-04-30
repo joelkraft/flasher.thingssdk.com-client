@@ -124,7 +124,6 @@ class ManifestList extends Component {
         }
     }
     deleteFlashImage(indexToRemove) {
-        console.log("delete fired. index:", indexToRemove);
         this.setState({
             ...this.state,
             currentManifest: {
