@@ -1,13 +1,38 @@
 // Libs
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchManifests, saveManifest } from "../actions/manifests";
+import {
+    fetchManifests,
+    saveManifest,
+    createManifest
+} from "../actions/manifests";
 import ManifestEdit from "./ManifestEdit";
+import { Row, Col, Button } from "react-bootstrap";
 import axios from "axios";
 import { getIdFromUrl } from "../util";
 import { apiUrl } from "../config";
 
+const emptyManifest = {
+    name: "",
+    version: "",
+    board: "",
+    revision: "",
+    description: "",
+    download: "",
+    flash: {
+        frequency: "",
+        images: [
+            {
+                address: "",
+                path: "",
+                sha: ""
+            }
+        ]
+    }
+};
+
 function getVisibleManifests(manifests, filter) {
+    console.log(manifests, filter)
     switch (filter) {
         case "ALL":
             return manifests;
@@ -34,7 +59,10 @@ const mapStateToManifestListProps = (state, ownProps) => ({
 
 const mapDispatchToProps = dispatch => {
     return {
-        onSubmit: (item, token) => {
+        handleSubmitCreate: (item, token) => {
+            return dispatch(createManifest(item, token));
+        },
+        handleSubmitSave: (item, token) => {
             return dispatch(saveManifest(item, token));
         },
         fetchManifestsOnMount: token => dispatch(fetchManifests(token))
@@ -48,6 +76,38 @@ class ManifestList extends Component {
             showModal: false,
             currentManifest: {}
         };
+    }
+    createNew() {
+        return this.setState({
+            ...this.state,
+            showModal: true,
+            currentManifest: { ...emptyManifest, isAuthor: true, isNew: true }
+        });
+    }
+    handleSubmit(isNew) {
+        if (isNew) {
+            return () =>
+                this.props
+                    .handleSubmitCreate(
+                        this.state.currentManifest,
+                        this.props.token
+                    )
+                    .then(() => {
+                        this.setState({
+                            ...this.state,
+                            showModal: false
+                        });
+                    });
+        }
+        return () =>
+            this.props
+                .handleSubmitSave(this.state.currentManifest, this.props.token)
+                .then(() => {
+                    this.setState({
+                        ...this.state,
+                        showModal: false
+                    });
+                });
     }
     open(item) {
         const authHeaderValue = `Bearer: ${this.props.token}`;
@@ -63,10 +123,12 @@ class ManifestList extends Component {
                 this.setState({
                     ...this.state,
                     currentManifest: {
+                        ...emptyManifest,
                         ...data,
                         ...item
                     },
-                    showModal: true
+                    showModal: true,
+                    modalMode: "Edit"
                 });
             })
             .catch(err => {
@@ -171,86 +233,90 @@ class ManifestList extends Component {
         });
     }
     render() {
+        const firstColumn = 2;
+        const secondColumn = 10;
         return (
             <div>
-                <ManifestEdit
-                    close={this.close.bind(this)}
-                    showModal={this.state.showModal}
-                    handleChange={this.handleChange.bind(this)}
-                    deleteFlashImage={this.deleteFlashImage.bind(this)}
-                    createFlashImage={this.createFlashImage.bind(this)}
-                    manifestDetails={this.state.currentManifest}
-                    isAdmin={this.props.isAdmin}
-                    handleSubmit={function() {
-                        this.props
-                            .onSubmit(
-                                this.state.currentManifest,
-                                this.props.token
-                            )
-                            .then(() => {
-                                this.setState({
-                                    ...this.state,
-                                    showModal: false
-                                });
-                            });
-                    }.bind(this)}
-                />
-                <table className="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Version</th>
-                            <th>Board</th>
-                            <th>Revision</th>
-                            <th>Published</th>
-                            <th />
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {this.props.manifests.map(man => {
-                            const {
-                                manifest,
-                                name,
-                                version,
-                                board,
-                                revision,
-                                isAuthor,
-                                published
-                            } = man;
-                            return (
-                                <tr
-                                    key={manifest}
-                                    data-url={manifest}
-                                    onClick={this.open.bind(this, man)}
-                                >
-                                    <td>{name}</td>
-                                    <td>{version}</td>
-                                    <td>{board}</td>
-                                    <td>{revision}</td>
-                                    <td>
-                                        {renderLabel(
-                                            published,
-                                            {
-                                                type: "success",
-                                                name: "PUBLISHED"
-                                            },
-                                            {
-                                                type: "danger",
-                                                name: "UNPUBLISHED"
-                                            }
-                                        )}
-                                    </td>
-                                    <td>
-                                        {renderLabel(isAuthor, {
-                                            type: "info",
-                                            name: "AUTHOR"
-                                        })}
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                <Row>
+                    <Col lg={firstColumn} md={firstColumn} />
+                    <Col lg={secondColumn} md={secondColumn}>
+                        <Button
+                            bsStyle="primary"
+                            onClick={this.createNew.bind(this)}
+                        >
+                            Create new manifest
+                        </Button>
+                    </Col>
+                </Row>
+                <hr />
+                <div className="table-responsive">
+                    <ManifestEdit
+                        close={this.close.bind(this)}
+                        showModal={this.state.showModal}
+                        handleChange={this.handleChange.bind(this)}
+                        deleteFlashImage={this.deleteFlashImage.bind(this)}
+                        createFlashImage={this.createFlashImage.bind(this)}
+                        manifestDetails={this.state.currentManifest}
+                        isAdmin={this.props.isAdmin}
+                        handleSubmit={this.handleSubmit(this.state.currentManifest.isNew).bind(this)}
+                    />
+                    <table className="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Version</th>
+                                <th>Board</th>
+                                <th>Revision</th>
+                                <th>Published</th>
+                                <th />
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.props.manifests.map(man => {
+                                const {
+                                    manifest,
+                                    name,
+                                    version,
+                                    board,
+                                    revision,
+                                    isAuthor,
+                                    published
+                                } = man;
+                                return (
+                                    <tr
+                                        key={manifest}
+                                        data-url={manifest}
+                                        onClick={this.open.bind(this, man)}
+                                    >
+                                        <td>{name}</td>
+                                        <td>{version}</td>
+                                        <td>{board}</td>
+                                        <td>{revision}</td>
+                                        <td>
+                                            {renderLabel(
+                                                published,
+                                                {
+                                                    type: "success",
+                                                    name: "PUBLISHED"
+                                                },
+                                                {
+                                                    type: "danger",
+                                                    name: "UNPUBLISHED"
+                                                }
+                                            )}
+                                        </td>
+                                        <td>
+                                            {renderLabel(isAuthor, {
+                                                type: "info",
+                                                name: "AUTHOR"
+                                            })}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         );
     }

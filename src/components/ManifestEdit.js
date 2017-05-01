@@ -14,7 +14,14 @@ import {
 } from "react-bootstrap";
 import { capitalize } from "../util";
 
-const FormItem = ({ name, value, handleChange, editable, flashIndex, componentClass }) => {
+const FormItem = ({
+    name,
+    value,
+    handleChange,
+    editable,
+    flashIndex,
+    componentClass
+}) => {
     return (
         <FormGroup controlId="formBasicText">
             <Col componentClass={ControlLabel} sm={4}>
@@ -39,13 +46,26 @@ const FormItem = ({ name, value, handleChange, editable, flashIndex, componentCl
     );
 };
 
-const FlashGroup = ({ group, editable, handleChange, deleteFlashImage, header, flashIndex }) => {
+const FlashGroup = ({
+    group,
+    editable,
+    handleChange,
+    deleteFlashImage,
+    header,
+    flashIndex
+}) => {
     const headerElement = (
         <div>
             <Label bsStyle="info">{header}</Label>
-            <Button bsStyle="danger" className="btn-xs pull-right" onClick={deleteFlashImage}>
-                Delete
-            </Button>
+            {editable
+                ? <Button
+                      bsStyle="danger"
+                      className="btn-xs pull-right"
+                      onClick={deleteFlashImage}
+                  >
+                      Delete
+                  </Button>
+                : null}
         </div>
     );
     return (
@@ -64,7 +84,13 @@ const FlashGroup = ({ group, editable, handleChange, deleteFlashImage, header, f
     );
 };
 
-const FlashPanel = ({ flash, editable, handleChange, deleteFlashImage, createFlashImage }) => {
+const FlashPanel = ({
+    flash,
+    editable,
+    handleChange,
+    deleteFlashImage,
+    createFlashImage
+}) => {
     const { frequency, images } = flash;
     return (
         <Panel header="Flash">
@@ -92,16 +118,31 @@ const FlashPanel = ({ flash, editable, handleChange, deleteFlashImage, createFla
                         key={index}
                         header={index}
                         flashIndex={index}
-                        deleteFlashImage={()=>deleteFlashImage(index)}
+                        deleteFlashImage={() => deleteFlashImage(index)}
                     />
                 );
             })}
-            <Button bsStyle="default" className="pull-right" onClick={createFlashImage}>New Image</Button>
+            {editable
+                ? <Button
+                      bsStyle="default"
+                      className="pull-right"
+                      onClick={createFlashImage}
+                  >
+                      New Image
+                  </Button>
+                : null}
         </Panel>
     );
 };
 
-const EditForm = ({ items, handleChange, deleteFlashImage, createFlashImage, editable, onSubmit }) => (
+const EditForm = ({
+    items,
+    handleChange,
+    deleteFlashImage,
+    createFlashImage,
+    editable,
+    onSubmit
+}) => (
     <Form horizontal onSubmit={onSubmit}>
         {items.map(
             ({ name, value, componentClass }, index) =>
@@ -138,15 +179,25 @@ class ManifestEdit extends Component {
             published,
             description,
             download,
-            flash
+            flash,
+            isNew
         } = this.props.manifestDetails;
         const { isAdmin } = this.props;
+        const { mode } = this.props;
+        const getMode = (isNew, isEditor) => {
+            if (isNew === "New") return "New";
+            return isEditor ? "Edit" : "View";
+        };
         const formOrder = [
             { name: "name", value: name },
             { name: "board", value: board },
             { name: "revision", value: revision },
             { name: "version", value: version },
-            { name: "description", value: description, componentClass: "textarea" },
+            {
+                name: "description",
+                value: description,
+                componentClass: "textarea"
+            },
             { name: "download", value: download },
             { name: "flash", value: flash }
         ];
@@ -155,7 +206,7 @@ class ManifestEdit extends Component {
             <Modal show={this.props.showModal} onHide={this.props.close}>
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        {isEditor ? "Edit" : "View"} Manifest
+                        {getMode(isNew, isEditor)} Manifest
                     </Modal.Title>
                     {isAuthor ? <Label bsStyle="info">AUTHOR</Label> : null}
                     &nbsp;
