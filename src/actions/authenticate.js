@@ -3,6 +3,8 @@ import axios from "axios";
 import { fetchUserInfo } from './user'
 import * as auth from "../actiontypes/authenticate";
 import { apiUrl } from "../config";
+import { getCookie } from "../util"
+
 
 export function requestAuth() {
     return {
@@ -67,8 +69,7 @@ export function checkTokenInCookies() {
         const cookie = document.cookie;
         if (cookie) {
             // TODO put a library here?
-            const parseCookie = c => c.substr(c.search("=") + 1);
-            const tokenInCookie = parseCookie(cookie);
+            const tokenInCookie = getCookie(cookie, 'Authorization');
             // test
             if (typeof tokenInCookie !== 'string' || tokenInCookie.length === 0) {
                 return false

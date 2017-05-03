@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "ava": "^0.19.1",
+    "babel-preset-react-app": "^2.2.0",
+    "babel-register": "^6.24.1",
     "react-scripts": "0.8.2"
   },
   "dependencies": {
@@ -20,7 +23,12 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
+    "test": "NODE_ENV=test ava",
     "eject": "react-scripts eject"
+  },
+  "ava": {
+    "verbose": true,
+    "files": "**/*.spec.js",
+    "require": "babel-register"
   }
 }
