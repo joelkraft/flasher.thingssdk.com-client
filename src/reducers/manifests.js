@@ -2,7 +2,10 @@ import { REQUEST_MANIFESTS, RECEIVE_MANIFESTS } from "../actiontypes/filter";
 import {
     MANIFEST_WAS_SAVED,
     MANIFEST_WAS_NOT_SAVED,
-    REQUEST_SAVE_MANIFEST
+    REQUEST_SAVE_MANIFEST,
+    REQUEST_CREATE_MANIFEST,
+    MANIFEST_WAS_CREATED,
+    MANIFEST_WAS_NOT_CREATED
 } from "../actiontypes/manifests";
 
 export default (state = { items: [] }, action) => {
@@ -38,6 +41,25 @@ export default (state = { items: [] }, action) => {
             return {
                 ...state,
                 isSaving: false
+            };
+        case REQUEST_CREATE_MANIFEST:
+            return {
+                ...state,
+                isCreating: true
+            };
+        case MANIFEST_WAS_CREATED:
+            return {
+                ...state,
+                isCreating: false,
+                items: [
+                    ...state.items,
+                    action.item
+                ]
+            };
+        case MANIFEST_WAS_NOT_CREATED:
+            return {
+                ...state,
+                isCreating: false
             };
         default:
             return state;

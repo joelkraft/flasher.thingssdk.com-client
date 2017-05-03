@@ -14,7 +14,14 @@ import {
 } from "react-bootstrap";
 import { capitalize } from "../util";
 
-const FormItem = ({ name, value, handleChange, editable, flashIndex }) => {
+const FormItem = ({
+    name,
+    value,
+    handleChange,
+    editable,
+    flashIndex,
+    componentClass
+}) => {
     return (
         <FormGroup controlId="formBasicText">
             <Col componentClass={ControlLabel} sm={4}>
@@ -29,6 +36,7 @@ const FormItem = ({ name, value, handleChange, editable, flashIndex }) => {
                           onChange={e => {
                               handleChange(name, e.target.value, flashIndex);
                           }}
+                          componentClass={componentClass}
                       />
                     : <FormControl.Static>
                           {value}
@@ -38,24 +46,51 @@ const FormItem = ({ name, value, handleChange, editable, flashIndex }) => {
     );
 };
 
-const FlashGroup = ({ group, editable, handleChange, header,flashIndex }) => {
-    const headerElement = <p><Label bsStyle="info">{header}</Label></p>
+const FlashGroup = ({
+    group,
+    editable,
+    handleChange,
+    deleteFlashImage,
+    header,
+    flashIndex
+}) => {
+    const headerElement = (
+        <div>
+            <Label bsStyle="info">{header}</Label>
+            {editable
+                ? <Button
+                      bsStyle="danger"
+                      className="btn-xs pull-right"
+                      onClick={deleteFlashImage}
+                  >
+                      Delete
+                  </Button>
+                : null}
+        </div>
+    );
     return (
-    <Panel header={headerElement}>
-        {group.map(({ name, value }, index) => (
-            <FormItem
-                key={index}
-                name={name}
-                value={value}
-                editable={editable}
-                handleChange={handleChange}
-                flashIndex={flashIndex}
-            />
-        ))}
-    </Panel>
-)};
+        <Panel header={headerElement}>
+            {group.map(({ name, value }, index) => (
+                <FormItem
+                    key={index}
+                    name={name}
+                    value={value}
+                    editable={editable}
+                    handleChange={handleChange}
+                    flashIndex={flashIndex}
+                />
+            ))}
+        </Panel>
+    );
+};
 
-const FlashPanel = ({ flash, editable, handleChange }) => {
+const FlashPanel = ({
+    flash,
+    editable,
+    handleChange,
+    deleteFlashImage,
+    createFlashImage
+}) => {
     const { frequency, images } = flash;
     return (
         <Panel header="Flash">
@@ -83,29 +118,48 @@ const FlashPanel = ({ flash, editable, handleChange }) => {
                         key={index}
                         header={index}
                         flashIndex={index}
+                        deleteFlashImage={() => deleteFlashImage(index)}
                     />
                 );
             })}
+            {editable
+                ? <Button
+                      bsStyle="default"
+                      className="pull-right"
+                      onClick={createFlashImage}
+                  >
+                      New Image
+                  </Button>
+                : null}
         </Panel>
     );
 };
 
-const EditForm = ({ items, handleChange, editable, onSubmit }) => (
+const EditForm = ({
+    items,
+    handleChange,
+    deleteFlashImage,
+    createFlashImage,
+    editable,
+    onSubmit
+}) => (
     <Form horizontal onSubmit={onSubmit}>
         {items.map(
-            ({ name, value, type }, index) =>
+            ({ name, value, componentClass }, index) =>
                 (name === "flash"
                     ? <FlashPanel
                           flash={value}
                           editable={editable}
                           key={index}
                           handleChange={handleChange}
+                          deleteFlashImage={deleteFlashImage}
+                          createFlashImage={createFlashImage}
                       />
                     : <FormItem
                           index={index}
                           value={value}
                           name={name}
-                          type={type}
+                          componentClass={componentClass}
                           handleChange={handleChange}
                           key={index}
                           editable={editable}
@@ -125,15 +179,25 @@ class ManifestEdit extends Component {
             published,
             description,
             download,
-            flash
+            flash,
+            isNew
         } = this.props.manifestDetails;
         const { isAdmin } = this.props;
+        const { mode } = this.props;
+        const getMode = (isNew, isEditor) => {
+            if (isNew === "New") return "New";
+            return isEditor ? "Edit" : "View";
+        };
         const formOrder = [
             { name: "name", value: name },
             { name: "board", value: board },
             { name: "revision", value: revision },
             { name: "version", value: version },
-            { name: "description", value: description, type: "textarea" },
+            {
+                name: "description",
+                value: description,
+                componentClass: "textarea"
+            },
             { name: "download", value: download },
             { name: "flash", value: flash }
         ];
@@ -142,7 +206,7 @@ class ManifestEdit extends Component {
             <Modal show={this.props.showModal} onHide={this.props.close}>
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        {isEditor ? "Edit" : "View"} Manifest
+                        {getMode(isNew, isEditor)} Manifest
                     </Modal.Title>
                     {isAuthor ? <Label bsStyle="info">AUTHOR</Label> : null}
                     &nbsp;
@@ -155,6 +219,8 @@ class ManifestEdit extends Component {
                         <EditForm
                             items={formOrder}
                             handleChange={this.props.handleChange}
+                            deleteFlashImage={this.props.deleteFlashImage}
+                            createFlashImage={this.props.createFlashImage}
                             editable={isEditor}
                             onSubmit={this.props.handleSubmit}
                         />

@@ -1,12 +1,15 @@
 import axios from "axios";
 import { apiUrl } from "../config";
-import { getIdFromUrl } from '../util';
+import { getIdFromUrl, getUrlFromId } from "../util";
 
 import { REQUEST_MANIFESTS, RECEIVE_MANIFESTS } from "../actiontypes/filter";
 import {
     MANIFEST_WAS_SAVED,
     MANIFEST_WAS_NOT_SAVED,
-    REQUEST_SAVE_MANIFEST
+    REQUEST_SAVE_MANIFEST,
+    REQUEST_CREATE_MANIFEST,
+    MANIFEST_WAS_CREATED,
+    MANIFEST_WAS_NOT_CREATED
 } from "../actiontypes/manifests";
 
 const processData = data =>
@@ -73,7 +76,7 @@ export function manifestWasNotSaved() {
 export function saveManifest(item, token) {
     const id = getIdFromUrl(item.manifest);
     const authHeaderValue = `Bearer: ${token}`;
-     return function(dispatch) {
+    return function(dispatch) {
         dispatch(requestSaveManifest());
         return axios
             .put(`${apiUrl.root}/manifests/${id}`, item, {
@@ -85,6 +88,51 @@ export function saveManifest(item, token) {
             .then(({ data }) => dispatch(manifestWasSaved(data)))
             .catch(err => {
                 dispatch(manifestWasNotSaved());
+                throw err;
+            });
+    };
+}
+
+export function requestCreateManifest() {
+    return {
+        type: REQUEST_CREATE_MANIFEST
+    };
+}
+
+export function manifestWasCreated(item) {
+    return {
+        type: MANIFEST_WAS_CREATED,
+        item
+    };
+}
+
+export function manifestWasNotCreated() {
+    return {
+        type: MANIFEST_WAS_NOT_CREATED
+    };
+}
+
+export function createManifest(item, token) {
+    const authHeaderValue = `Bearer: ${token}`;
+    return function(dispatch) {
+        dispatch(requestCreateManifest());
+        return axios
+            .post(`${apiUrl.root}/manifests`, item, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: authHeaderValue
+                }
+            })
+            .then(({ data }) => {
+                const manifestDoc = {
+                    ...data,
+                    manifest: getUrlFromId(data._id),
+                    isAuthor: true
+                };
+                return dispatch(manifestWasCreated(manifestDoc));
+            })
+            .catch(err => {
+                dispatch(manifestWasNotCreated());
                 throw err;
             });
     };

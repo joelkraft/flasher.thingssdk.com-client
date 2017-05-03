@@ -1,12 +1,8 @@
-const keyValueArrayOntoObject = (arr, obj = {}) => {
-    return {
-        ...obj,
-        [arr[0]]: arr[1]
-    }
-}
+import { apiUrl } from './config'
 
 export const capitalize = str => str[0].toUpperCase() + str.slice(1)
 export const getIdFromUrl = url => url.slice(url.lastIndexOf("/") + 1)
+export const getUrlFromId = id => `${apiUrl.root}/manifests/${id}`
 export const getCookie = (cookies, key) => {
     const match = cookies.split('; ')
     .map(pair => pair.split('='))
