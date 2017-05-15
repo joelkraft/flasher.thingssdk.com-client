@@ -1,5 +1,6 @@
-import { REQUEST_MANIFESTS, RECEIVE_MANIFESTS } from "../actiontypes/filter";
 import {
+    REQUEST_MANIFESTS,
+    RECEIVE_MANIFESTS,
     MANIFEST_WAS_SAVED,
     MANIFEST_WAS_NOT_SAVED,
     REQUEST_SAVE_MANIFEST,
@@ -17,9 +18,9 @@ export default (state = { items: [] }, action) => {
             };
         case RECEIVE_MANIFESTS:
             return {
+                ...state,
                 isFetching: false,
-                items: action.items,
-                lastUpdated: action.receivedAt
+                items: action.items
             };
         case REQUEST_SAVE_MANIFEST:
             return {
@@ -32,9 +33,9 @@ export default (state = { items: [] }, action) => {
                 isSaving: false,
                 items: state.items.map(item => {
                     if (item.manifest === action.item.manifest) {
-                        return action.item
+                        return action.item;
                     }
-                    return { ...item }
+                    return { ...item };
                 })
             };
         case MANIFEST_WAS_NOT_SAVED:
@@ -51,10 +52,7 @@ export default (state = { items: [] }, action) => {
             return {
                 ...state,
                 isCreating: false,
-                items: [
-                    ...state.items,
-                    action.item
-                ]
+                items: [...state.items, action.item]
             };
         case MANIFEST_WAS_NOT_CREATED:
             return {

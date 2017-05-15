@@ -1,9 +1,11 @@
+import fetch from "isomorphic-fetch";
 import axios from "axios";
 import { apiUrl } from "../config";
 import { getIdFromUrl, getUrlFromId } from "../util";
 
-import { REQUEST_MANIFESTS, RECEIVE_MANIFESTS } from "../actiontypes/filter";
 import {
+    REQUEST_MANIFESTS,
+    RECEIVE_MANIFESTS,
     MANIFEST_WAS_SAVED,
     MANIFEST_WAS_NOT_SAVED,
     REQUEST_SAVE_MANIFEST,
@@ -30,8 +32,7 @@ export function requestManifests() {
 export function receiveManifests(items) {
     return {
         type: RECEIVE_MANIFESTS,
-        items,
-        receivedAt: Date.now()
+        items
     };
 }
 
@@ -39,15 +40,15 @@ export function fetchManifests(token) {
     const authHeaderValue = `Bearer: ${token}`;
     return function(dispatch) {
         dispatch(requestManifests());
-        return axios
-            .get(apiUrl.root, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: authHeaderValue
-                }
-            })
-            .then(({ data }) => {
-                const processedData = processData(data);
+        return fetch(apiUrl.root, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: authHeaderValue
+            }
+        })
+            .then(response => response.json())
+            .then(res => {
+                const processedData = processData(res);
                 dispatch(receiveManifests(processedData));
             })
             .catch(err => console.log("ERRERER", err));
@@ -78,14 +79,17 @@ export function saveManifest(item, token) {
     const authHeaderValue = `Bearer: ${token}`;
     return function(dispatch) {
         dispatch(requestSaveManifest());
-        return axios
-            .put(`${apiUrl.root}/manifests/${id}`, item, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: authHeaderValue
-                }
-            })
-            .then(({ data }) => dispatch(manifestWasSaved(data)))
+        return fetch(`${apiUrl.root}/manifests/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: authHeaderValue
+            },
+            body: JSON.stringify(item)
+        })
+            .then(response => response.json())
+            .then(( doc ) => {
+                return dispatch(manifestWasSaved(doc))})
             .catch(err => {
                 dispatch(manifestWasNotSaved());
                 throw err;

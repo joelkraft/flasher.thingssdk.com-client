@@ -1,14 +1,13 @@
-import test from 'ava'
-import { getCookie } from './util'
+import { getCookie } from "./util";
 
-const cookieString = 'color=blue; margarine=butter; gables=stucco'
+const cookieString = "color=blue; margarine=butter; gables=stucco";
 
-test('getCookie returns the correct value for a key in the cookie', t => {
-    t.is(getCookie(cookieString, 'color'), 'blue')
-    t.is(getCookie(cookieString, 'margarine'), 'butter')
-    t.is(getCookie(cookieString, 'gables'), 'stucco')
-})
+it("getCookie returns the correct value for a key in the cookie", () => {
+    expect(getCookie(cookieString, "color")).toEqual("blue");
+    expect(getCookie(cookieString, "margarine")).toEqual("butter");
+    expect(getCookie(cookieString, "gables")).toEqual("stucco");
+});
 
-test('getCookie returns null if provided key isn\'t in cookie', t => {
-    t.is(getCookie(cookieString, 'barn'), null)
-})
+test("getCookie returns null if provided key isn't in cookie", () => {
+    expect(getCookie(cookieString, "barn")).toBeNull();
+});

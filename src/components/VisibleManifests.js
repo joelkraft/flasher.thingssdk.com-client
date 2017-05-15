@@ -32,7 +32,6 @@ const emptyManifest = {
 };
 
 function getVisibleManifests(manifests, filter) {
-    console.log(manifests, filter)
     switch (filter) {
         case "ALL":
             return manifests;
@@ -258,7 +257,9 @@ class ManifestList extends Component {
                         createFlashImage={this.createFlashImage.bind(this)}
                         manifestDetails={this.state.currentManifest}
                         isAdmin={this.props.isAdmin}
-                        handleSubmit={this.handleSubmit(this.state.currentManifest.isNew).bind(this)}
+                        handleSubmit={this.handleSubmit(
+                            this.state.currentManifest.isNew
+                        ).bind(this)}
                     />
                     <table className="table table-striped">
                         <thead>
@@ -321,6 +322,8 @@ class ManifestList extends Component {
         );
     }
 }
+
+export { ManifestList };
 
 export default connect(mapStateToManifestListProps, mapDispatchToProps)(
     ManifestList
