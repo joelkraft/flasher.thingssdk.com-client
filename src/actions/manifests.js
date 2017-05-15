@@ -1,5 +1,4 @@
 import fetch from "isomorphic-fetch";
-import axios from "axios";
 import { apiUrl } from "../config";
 import { getIdFromUrl, getUrlFromId } from "../util";
 
@@ -120,22 +119,25 @@ export function createManifest(item, token) {
     const authHeaderValue = `Bearer: ${token}`;
     return function(dispatch) {
         dispatch(requestCreateManifest());
-        return axios
-            .post(`${apiUrl.root}/manifests`, item, {
+        return fetch(`${apiUrl.root}/manifests`, {
+                method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: authHeaderValue
-                }
+                },
+                body: JSON.stringify(item)
             })
-            .then(({ data }) => {
+            .then(response => response.json())
+            .then(( doc ) => {
                 const manifestDoc = {
-                    ...data,
-                    manifest: getUrlFromId(data._id),
+                    ...doc,
+                    manifest: getUrlFromId(doc._id),
                     isAuthor: true
                 };
                 return dispatch(manifestWasCreated(manifestDoc));
             })
             .catch(err => {
+                console.log('***',err)
                 dispatch(manifestWasNotCreated());
                 throw err;
             });
