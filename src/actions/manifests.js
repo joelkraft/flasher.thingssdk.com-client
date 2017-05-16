@@ -5,6 +5,7 @@ import { getIdFromUrl, getUrlFromId } from "../util";
 import {
     REQUEST_MANIFESTS,
     RECEIVE_MANIFESTS,
+    RECEIVE_MANIFESTS_FAILED,
     MANIFEST_WAS_SAVED,
     MANIFEST_WAS_NOT_SAVED,
     REQUEST_SAVE_MANIFEST,
@@ -28,10 +29,15 @@ export function requestManifests() {
     };
 }
 
-export function receiveManifests(items) {
-    return {
+export function receiveManifests(items) { return {
         type: RECEIVE_MANIFESTS,
         items
+    };
+}
+
+export function receiveManifestsFailed() {
+    return {
+        type: RECEIVE_MANIFESTS_FAILED
     };
 }
 
@@ -50,7 +56,10 @@ export function fetchManifests(token) {
                 const processedData = processData(res);
                 dispatch(receiveManifests(processedData));
             })
-            .catch(err => console.log("ERRERER", err));
+            .catch(err => {
+                dispatch(receiveManifestsFailed());
+                throw err;
+            })
     };
 }
 
@@ -137,7 +146,6 @@ export function createManifest(item, token) {
                 return dispatch(manifestWasCreated(manifestDoc));
             })
             .catch(err => {
-                console.log('***',err)
                 dispatch(manifestWasNotCreated());
                 throw err;
             });
