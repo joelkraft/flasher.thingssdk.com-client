@@ -30,6 +30,7 @@ describe("async manifest actions", () => {
         Authorization: `Bearer: ${token}`,
         "Content-Type": "application/json"
     };
+    const manifestId = '5906d98f2e4f60e34879bff8';
     const bodyDocument = {
         options: [
             {
@@ -41,7 +42,7 @@ describe("async manifest actions", () => {
                         revision: "ESP-12",
                         published: true,
                         isAuthor: false,
-                        manifest: `${apiUrl.base}${apiUrl.version}/manifests/5906d98f2e4f60e34879bff8`,
+                        manifest: `${apiUrl.base}${apiUrl.version}/manifests/${manifestId}`,
                         latest: false
                     }
                 ]
@@ -50,7 +51,7 @@ describe("async manifest actions", () => {
     };
     const manifestDoc = {
         board: "ESP8266",
-        manifest: `${apiUrl.base}${apiUrl.version}/manifests/5906d98f2e4f60e34879bff8`,
+        manifest: `${apiUrl.base}${apiUrl.version}/manifests/${manifestId}`,
         name: "Espruino",
         revision: "ESP-12",
         version: "1v85",
@@ -100,7 +101,7 @@ describe("async manifest actions", () => {
     });
     it("creates RECEIVE_MANIFEST when manifest has been returned", () => {
         nock(apiUrl.base, { reqheaders })
-            .get(`${apiUrl.version}/manifests/5906d98f2e4f60e34879bff8`)
+            .get(`${apiUrl.version}/manifests/${manifestId}`)
             .reply(200, manifestDoc);
 
         const expectedActions = [
@@ -111,7 +112,7 @@ describe("async manifest actions", () => {
         const store = mockStore({});
 
         return store
-            .dispatch(actions.fetchManifest(manifestDoc, token))
+            .dispatch(actions.fetchManifest(manifestId, token))
             .then(() => {
                 expect(store.getActions()).toEqual(expectedActions);
             })
@@ -119,9 +120,9 @@ describe("async manifest actions", () => {
                 expect(err).toBe(null);
             });
     });
-    xit("creates RECEIVE_MANIFEST_FAILED when manifest has failed to be returned", () => {
+    it("creates RECEIVE_MANIFEST_FAILED when manifest has failed to be returned", () => {
         nock(apiUrl.base, { reqheaders })
-            .get(`${apiUrl.version}/manifests/5906d98f2e4f60e34879bff8`)
+            .get(`${apiUrl.version}/manifests/${manifestId}`)
             .replyWithError("Manifest cannot be returned");
 
         const expectedActions = [
@@ -139,7 +140,7 @@ describe("async manifest actions", () => {
     it("creates MANIFEST_WAS_SAVED after successful save", () => {
         nock(apiUrl.base, { reqheaders })
             .put(
-                `${apiUrl.version}/manifests/5906d98f2e4f60e34879bff8`,
+                `${apiUrl.version}/manifests/${manifestId}`,
                 manifestDoc
             )
             .reply(200, manifestDoc);
@@ -163,7 +164,7 @@ describe("async manifest actions", () => {
     it("creates MANIFEST_WAS_NOT_SAVED after unsuccessful save", () => {
         nock(apiUrl.base, { reqheaders })
             .put(
-                `${apiUrl.version}/manifests/5906d98f2e4f60e34879bff8`,
+                `${apiUrl.version}/manifests/${manifestId}`,
                 manifestDoc
             )
             .replyWithError("Manifest not saved");
