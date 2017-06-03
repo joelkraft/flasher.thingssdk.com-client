@@ -2,13 +2,15 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import {
+    fetchManifest,
     fetchManifests,
     saveManifest,
     createManifest
 } from "../actions/manifests";
 import ManifestEdit from "./ManifestEdit";
+import ManifestList from "./ManifestList";
 import { Row, Col, Button } from "react-bootstrap";
-import axios from "axios";
+import fetch from "isomorphic-fetch";
 import { getIdFromUrl } from "../util";
 import { apiUrl } from "../config";
 
@@ -42,16 +44,8 @@ function getVisibleManifests(manifests, filter) {
     }
 }
 
-function renderLabel(cond, yes, no) {
-    return cond
-        ? yes
-              ? <span className={`label label-${yes.type}`}>{yes.name}</span>
-              : ""
-        : no ? <span className={`label label-${no.type}`}>{no.name}</span> : "";
-}
-const mapStateToManifestListProps = (state, ownProps) => ({
+const mapStateToManifestPageProps = state => ({
     manifests: getVisibleManifests(state.manifests.items, state.manifestFilter),
-    open: ownProps.open,
     token: state.authenticate.token,
     isAdmin: state.user.info.isAdmin
 });
@@ -68,7 +62,7 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-class ManifestList extends Component {
+class ManifestPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -111,14 +105,14 @@ class ManifestList extends Component {
     open(item) {
         const authHeaderValue = `Bearer: ${this.props.token}`;
         const id = getIdFromUrl(item.manifest);
-        axios
-            .get(`${apiUrl.root}/manifests/${id}`, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: authHeaderValue
-                }
-            })
-            .then(({ data }) => {
+        fetch(`${apiUrl.root}/manifests/${id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: authHeaderValue
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
                 this.setState({
                     ...this.state,
                     currentManifest: {
@@ -241,6 +235,7 @@ class ManifestList extends Component {
                     <Col lg={secondColumn} md={secondColumn}>
                         <Button
                             bsStyle="primary"
+                            id="createManifestButton"
                             onClick={this.createNew.bind(this)}
                         >
                             Create new manifest
@@ -261,70 +256,18 @@ class ManifestList extends Component {
                             this.state.currentManifest.isNew
                         ).bind(this)}
                     />
-                    <table className="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Version</th>
-                                <th>Board</th>
-                                <th>Revision</th>
-                                <th>Published</th>
-                                <th />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {this.props.manifests.map(man => {
-                                const {
-                                    manifest,
-                                    name,
-                                    version,
-                                    board,
-                                    revision,
-                                    isAuthor,
-                                    published
-                                } = man;
-                                return (
-                                    <tr
-                                        key={manifest}
-                                        data-url={manifest}
-                                        onClick={this.open.bind(this, man)}
-                                    >
-                                        <td>{name}</td>
-                                        <td>{version}</td>
-                                        <td>{board}</td>
-                                        <td>{revision}</td>
-                                        <td>
-                                            {renderLabel(
-                                                published,
-                                                {
-                                                    type: "success",
-                                                    name: "PUBLISHED"
-                                                },
-                                                {
-                                                    type: "danger",
-                                                    name: "UNPUBLISHED"
-                                                }
-                                            )}
-                                        </td>
-                                        <td>
-                                            {renderLabel(isAuthor, {
-                                                type: "info",
-                                                name: "AUTHOR"
-                                            })}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                    <ManifestList
+                        manifests={this.props.manifests}
+                        open={this.open.bind(this)}
+                    />
                 </div>
             </div>
         );
     }
 }
 
-export { ManifestList };
+export { ManifestPage };
 
-export default connect(mapStateToManifestListProps, mapDispatchToProps)(
-    ManifestList
+export default connect(mapStateToManifestPageProps, mapDispatchToProps)(
+    ManifestPage
 );
