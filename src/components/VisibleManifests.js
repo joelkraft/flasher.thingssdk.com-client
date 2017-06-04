@@ -52,13 +52,10 @@ const mapStateToManifestPageProps = state => ({
 
 const mapDispatchToProps = dispatch => {
     return {
-        handleSubmitCreate: (item, token) => {
-            return dispatch(createManifest(item, token));
-        },
-        handleSubmitSave: (item, token) => {
-            return dispatch(saveManifest(item, token));
-        },
-        fetchManifestsOnMount: token => dispatch(fetchManifests(token))
+        handleSubmitCreate: (item, token) =>
+            dispatch(createManifest(item, token)),
+        handleSubmitSave: (item, token) => dispatch(saveManifest(item, token)),
+        getManifests: token => dispatch(fetchManifests(token))
     };
 };
 
@@ -90,6 +87,10 @@ class ManifestPage extends Component {
                             ...this.state,
                             showModal: false
                         });
+                        this.props.getManifests(this.props.token);
+                    })
+                    .catch(err => {
+                        throw err;
                     });
         }
         return () =>
@@ -100,6 +101,10 @@ class ManifestPage extends Component {
                         ...this.state,
                         showModal: false
                     });
+                    this.props.getManifests(this.props.token);
+                })
+                .catch(err => {
+                    throw err;
                 });
     }
     open(item) {
@@ -221,7 +226,7 @@ class ManifestPage extends Component {
     componentDidMount() {
         const { token } = this.props;
 
-        this.props.fetchManifestsOnMount(token).catch(err => {
+        this.props.getManifests(token).catch(err => {
             throw err;
         });
     }

@@ -9,7 +9,7 @@ import {
     MANIFEST_WAS_NOT_CREATED
 } from "../actiontypes/manifests";
 
-export default (state = { items: [] }, action) => {
+export default function manifests(state = { items: [] }, action) {
     switch (action.type) {
         case REQUEST_MANIFESTS:
             return {
@@ -30,13 +30,7 @@ export default (state = { items: [] }, action) => {
         case MANIFEST_WAS_SAVED:
             return {
                 ...state,
-                isSaving: false,
-                items: state.items.map(item => {
-                    if (item.manifest === action.item.manifest) {
-                        return action.item;
-                    }
-                    return { ...item };
-                })
+                isSaving: false
             };
         case MANIFEST_WAS_NOT_SAVED:
             return {

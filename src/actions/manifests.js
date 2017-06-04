@@ -140,9 +140,7 @@ export function saveManifest(item, token) {
       body: JSON.stringify(item)
     })
       .then(response => response.json())
-      .then(doc => {
-        return dispatch(manifestWasSaved(doc));
-      })
+      .then(doc => dispatch(manifestWasSaved(doc)))
       .catch(err => {
         dispatch(manifestWasNotSaved());
         throw err;

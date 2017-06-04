@@ -55,15 +55,15 @@ handleSubmitCreate.mockReturnValue(Promise.resolve());
 const handleSubmitSave = jest.fn();
 handleSubmitSave.mockReturnValue(Promise.resolve());
 
-const fetchManifestsOnMount = jest.fn();
-fetchManifestsOnMount.mockReturnValue(Promise.resolve());
+const getManifests = jest.fn();
+getManifests.mockReturnValue(Promise.resolve());
 
 const getComponent = () => (
     <ManifestPage
         manifests={manifests}
         handleSubmitCreate={handleSubmitCreate}
         handleSubmitSave={handleSubmitSave}
-        fetchManifestsOnMount={fetchManifestsOnMount}
+        getManifests={getManifests}
     />
 );
 
@@ -88,7 +88,7 @@ it("renders ManifestList", () => {
 
 it("fetches all available manifests on loading", () => {
     const wrapper = shallow(getComponent());
-    expect(fetchManifestsOnMount.mock.calls.length).toEqual(1);
+    expect(getManifests.mock.calls.length).toEqual(1);
 });
 
 it('sets modal to visible when "create new" button is clicked', () => {
