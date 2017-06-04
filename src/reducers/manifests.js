@@ -6,7 +6,10 @@ import {
     REQUEST_SAVE_MANIFEST,
     REQUEST_CREATE_MANIFEST,
     MANIFEST_WAS_CREATED,
-    MANIFEST_WAS_NOT_CREATED
+    MANIFEST_WAS_NOT_CREATED,
+    REQUEST_DELETE_MANIFEST,
+    MANIFEST_WAS_DELETED,
+    MANIFEST_WAS_NOT_DELETED
 } from "../actiontypes/manifests";
 
 export default function manifests(state = { items: [] }, action) {
@@ -53,7 +56,25 @@ export default function manifests(state = { items: [] }, action) {
                 ...state,
                 isCreating: false
             };
+        case REQUEST_DELETE_MANIFEST:
+            return {
+                ...state,
+                isDeleting: true
+            };
+        case MANIFEST_WAS_DELETED:
+            return {
+                ...state,
+                isDeleting: false,
+                items: state.items.filter(item =>
+                    !item.manifest.endsWith(action.id)
+                )
+            };
+        case MANIFEST_WAS_NOT_DELETED:
+            return {
+                ...state,
+                isDeleting: false
+            };
         default:
             return state;
     }
-};
+}

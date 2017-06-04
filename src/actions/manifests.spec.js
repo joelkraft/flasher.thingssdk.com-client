@@ -13,7 +13,10 @@ import {
     REQUEST_SAVE_MANIFEST,
     REQUEST_CREATE_MANIFEST,
     MANIFEST_WAS_CREATED,
-    MANIFEST_WAS_NOT_CREATED
+    MANIFEST_WAS_NOT_CREATED,
+    REQUEST_DELETE_MANIFEST,
+    MANIFEST_WAS_DELETED,
+    MANIFEST_WAS_NOT_DELETED
 } from "../actiontypes/manifests";
 import nock from "nock";
 import { apiUrl } from "../config";
@@ -30,7 +33,7 @@ describe("async manifest actions", () => {
         Authorization: `Bearer: ${token}`,
         "Content-Type": "application/json"
     };
-    const manifestId = '5906d98f2e4f60e34879bff8';
+    const manifestId = "5906d98f2e4f60e34879bff8";
     const bodyDocument = {
         options: [
             {
@@ -132,17 +135,16 @@ describe("async manifest actions", () => {
 
         const store = mockStore({});
 
-        return store.dispatch(actions.fetchManifest(manifestDoc, token)).catch(err => {
-            expect(err).toBeInstanceOf(Error);
-            expect(store.getActions()).toEqual(expectedActions);
-        });
+        return store
+            .dispatch(actions.fetchManifest(manifestDoc, token))
+            .catch(err => {
+                expect(err).toBeInstanceOf(Error);
+                expect(store.getActions()).toEqual(expectedActions);
+            });
     });
     it("creates MANIFEST_WAS_SAVED after successful save", () => {
         nock(apiUrl.base, { reqheaders })
-            .put(
-                `${apiUrl.version}/manifests/${manifestId}`,
-                manifestDoc
-            )
+            .put(`${apiUrl.version}/manifests/${manifestId}`, manifestDoc)
             .reply(200, manifestDoc);
 
         const expectedActions = [
@@ -163,10 +165,7 @@ describe("async manifest actions", () => {
     });
     it("creates MANIFEST_WAS_NOT_SAVED after unsuccessful save", () => {
         nock(apiUrl.base, { reqheaders })
-            .put(
-                `${apiUrl.version}/manifests/${manifestId}`,
-                manifestDoc
-            )
+            .put(`${apiUrl.version}/manifests/${manifestId}`, manifestDoc)
             .replyWithError("Manifest not saved");
 
         const expectedActions = [
@@ -230,6 +229,47 @@ describe("async manifest actions", () => {
                 expect(store.getActions()).toEqual(expectedActions);
             });
     });
+    it("creates MANIFEST_WAS_DELETED after successful deletion", () => {
+        nock(apiUrl.base, { reqheaders })
+            .delete(`${apiUrl.version}/manifests/${manifestId}`)
+            .reply(200, { message: "Success" });
+
+        const expectedActions = [
+            { type: REQUEST_DELETE_MANIFEST },
+            { type: MANIFEST_WAS_DELETED }
+        ];
+
+        const store = mockStore({});
+
+        return store
+            .dispatch(actions.deleteManifest(manifestId, token))
+            .then(data => {
+                expect(store.getActions()).toEqual(expectedActions);
+            })
+            .catch(err => {
+                expect(err).toBeInstanceOf(Error);
+                expect(store.getActions()).toEqual(expectedActions);
+            });
+    });
+    it("creates MANIFEST_WAS_NOT_DELETED after unsuccessful deletion", () => {
+        nock(apiUrl.base, { reqheaders })
+            .delete(`${apiUrl.version}/manifests/${manifestId}`)
+            .replyWithError("Manifest not created");
+
+        const expectedActions = [
+            { type: REQUEST_DELETE_MANIFEST },
+            { type: MANIFEST_WAS_NOT_DELETED }
+        ];
+
+        const store = mockStore({});
+
+        return store
+            .dispatch(actions.deleteManifest(manifestDoc, token))
+            .catch(err => {
+                expect(err).toBeInstanceOf(Error);
+                expect(store.getActions()).toEqual(expectedActions);
+            });
+    });
 });
 
 describe("manifest actions", () => {
@@ -272,5 +312,27 @@ describe("manifest actions", () => {
             type: MANIFEST_WAS_NOT_SAVED
         };
         expect(actions.manifestWasNotSaved()).toEqual(expectedAction);
+    });
+    it("should create an action to delete a manifest", () => {
+        const expectedAction = {
+            type: REQUEST_DELETE_MANIFEST
+        };
+        expect(actions.requestDeleteManifest()).toEqual(expectedAction);
+    });
+
+    it("should create an action to indicate successful deletion of manifest", () => {
+        const id = 'id1234';
+        const expectedAction = {
+            type: MANIFEST_WAS_DELETED,
+            id
+        };
+        expect(actions.manifestWasDeleted(id)).toEqual(expectedAction);
+    });
+
+    it("should create an action to send failure when manifest was not deleted", () => {
+        const expectedAction = {
+            type: MANIFEST_WAS_NOT_DELETED
+        };
+        expect(actions.manifestWasNotDeleted()).toEqual(expectedAction);
     });
 });

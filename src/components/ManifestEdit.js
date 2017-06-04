@@ -231,7 +231,7 @@ class ManifestEdit extends Component {
                               bsStyle="primary"
                               onClick={this.props.handleSubmit}
                           >
-                              Submit
+                              Create
                           </Button>
                         : null}
                     <Button onClick={this.props.close}>

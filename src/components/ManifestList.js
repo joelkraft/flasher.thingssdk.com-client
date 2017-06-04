@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "react-bootstrap";
+import { getIdFromUrl } from "../util";
 
 const Label = props => (
     <span className={`label label-${props.type}`}>{props.name}</span>
@@ -10,7 +11,7 @@ const DeleteButton = ({ onClick }) => (
         Delete
     </Button>
 );
-const ManifestList = ({ manifests, openManifest, deleteManifest, isAdmin }) => {
+const ManifestList = ({ manifests, openManifest, handleDelete, isAdmin }) => {
     return (
         <table className="table table-striped">
             <thead>
@@ -39,7 +40,8 @@ const ManifestList = ({ manifests, openManifest, deleteManifest, isAdmin }) => {
                         <tr
                             key={manifest}
                             data-url={manifest}
-                            onClick={() => {
+                            onClick={e => {
+                                if (e.target.nodeName === "BUTTON") return;
                                 openManifest(man);
                             }}
                         >
@@ -63,7 +65,8 @@ const ManifestList = ({ manifests, openManifest, deleteManifest, isAdmin }) => {
                             <td>
                                 {isAuthor || isAdmin
                                     ? <DeleteButton
-                                          onClick={() => deleteManifest(man)}
+                                          onClick={() =>
+                                              handleDelete(manifest)}
                                       />
                                     : null}
                             </td>

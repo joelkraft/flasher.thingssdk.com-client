@@ -5,7 +5,8 @@ import {
     fetchManifest,
     fetchManifests,
     saveManifest,
-    createManifest
+    createManifest,
+    deleteManifest
 } from "../actions/manifests";
 import ManifestEdit from "./ManifestEdit";
 import ManifestList from "./ManifestList";
@@ -55,7 +56,8 @@ const mapDispatchToProps = dispatch => {
         handleSubmitCreate: (item, token) =>
             dispatch(createManifest(item, token)),
         handleSubmitSave: (item, token) => dispatch(saveManifest(item, token)),
-        getManifests: token => dispatch(fetchManifests(token))
+        getManifests: token => dispatch(fetchManifests(token)),
+        deleteManifest: (id, token) => dispatch(deleteManifest(id, token))
     };
 };
 
@@ -106,6 +108,16 @@ class ManifestPage extends Component {
                 .catch(err => {
                     throw err;
                 });
+    }
+    handleDelete(manifestUrl) {
+        const id = getIdFromUrl(manifestUrl);
+        const token = this.props.token;
+        this.props
+            .deleteManifest(id, token)
+            .then(this.props.getManifests(token))
+            .catch(err => {
+                throw err;
+            });
     }
     open(item) {
         const authHeaderValue = `Bearer: ${this.props.token}`;
@@ -264,7 +276,7 @@ class ManifestPage extends Component {
                     <ManifestList
                         manifests={this.props.manifests}
                         openManifest={this.open.bind(this)}
-                        deleteManifest={()=>console.log('dleet')}
+                        handleDelete={this.handleDelete.bind(this)}
                         isAdmin={this.props.isAdmin}
                     />
                 </div>
