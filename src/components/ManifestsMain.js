@@ -1,6 +1,5 @@
 import React from "react";
 import VisibleManifests from "./VisibleManifests";
-import { Button, Row, Col } from "react-bootstrap";
 
 export default () => {
     return (

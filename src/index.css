@@ -17,3 +17,7 @@ body {
 #login-name {
   color: #cddc39;
 }
+
+.label-unPublished {
+  background-color: #9c785a;
+}

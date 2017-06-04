@@ -183,7 +183,6 @@ class ManifestEdit extends Component {
             isNew
         } = this.props.manifestDetails;
         const { isAdmin } = this.props;
-        const { mode } = this.props;
         const getMode = (isNew, isEditor) => {
             if (isNew === "New") return "New";
             return isEditor ? "Edit" : "View";

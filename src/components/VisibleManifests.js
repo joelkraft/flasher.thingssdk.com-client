@@ -263,7 +263,9 @@ class ManifestPage extends Component {
                     />
                     <ManifestList
                         manifests={this.props.manifests}
-                        open={this.open.bind(this)}
+                        openManifest={this.open.bind(this)}
+                        deleteManifest={()=>console.log('dleet')}
+                        isAdmin={this.props.isAdmin}
                     />
                 </div>
             </div>

@@ -1,14 +1,16 @@
 import React from "react";
+import { Button } from "react-bootstrap";
 
-function renderLabel(cond, yes, no) {
-    return cond
-        ? yes
-              ? <span className={`label label-${yes.type}`}>{yes.name}</span>
-              : ""
-        : no ? <span className={`label label-${no.type}`}>{no.name}</span> : "";
-}
+const Label = props => (
+    <span className={`label label-${props.type}`}>{props.name}</span>
+);
 
-const ManifestList = ({ manifests, open }) => {
+const DeleteButton = ({ onClick }) => (
+    <Button bsStyle="danger" bsSize="xs" onClick={onClick}>
+        Delete
+    </Button>
+);
+const ManifestList = ({ manifests, openManifest, deleteManifest, isAdmin }) => {
     return (
         <table className="table table-striped">
             <thead>
@@ -18,6 +20,7 @@ const ManifestList = ({ manifests, open }) => {
                     <th>Board</th>
                     <th>Revision</th>
                     <th>Published</th>
+                    <th />
                     <th />
                 </tr>
             </thead>
@@ -36,8 +39,8 @@ const ManifestList = ({ manifests, open }) => {
                         <tr
                             key={manifest}
                             data-url={manifest}
-                            onClick={()=>{
-                                open(man)
+                            onClick={() => {
+                                openManifest(man);
                             }}
                         >
                             <td>{name}</td>
@@ -45,23 +48,24 @@ const ManifestList = ({ manifests, open }) => {
                             <td>{board}</td>
                             <td>{revision}</td>
                             <td>
-                                {renderLabel(
-                                    published,
-                                    {
-                                        type: "success",
-                                        name: "PUBLISHED"
-                                    },
-                                    {
-                                        type: "danger",
-                                        name: "UNPUBLISHED"
-                                    }
-                                )}
+                                {published
+                                    ? <Label type="success" name="PUBLISHED" />
+                                    : <Label
+                                          type="unPublished"
+                                          name="UNPUBLISHED"
+                                      />}
                             </td>
                             <td>
-                                {renderLabel(isAuthor, {
-                                    type: "info",
-                                    name: "AUTHOR"
-                                })}
+                                {isAuthor
+                                    ? <Label type="info" name="AUTHOR" />
+                                    : null}
+                            </td>
+                            <td>
+                                {isAuthor || isAdmin
+                                    ? <DeleteButton
+                                          onClick={() => deleteManifest(man)}
+                                      />
+                                    : null}
                             </td>
                         </tr>
                     );
