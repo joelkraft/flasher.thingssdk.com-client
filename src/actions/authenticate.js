@@ -34,15 +34,13 @@ export function loginError(err) {
 
 export function logout() {
     return function(dispatch) {
-        console.log(document.cookie)
         document.cookie = 'Authorization='
-        console.log(document.cookie)
         return dispatch(clearAuth())
     }
 }
 
 export function sendCredentials(username, password) {
-    const encodedCred = btoa(`${username}:${password}`);
+    const encodedCred = `Basic ${btoa(`${username}:${password}`)}`;
     return function(dispatch) {
         dispatch(requestAuth());
         return axios
