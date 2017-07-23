@@ -30,7 +30,7 @@ describe("async manifest actions", () => {
     });
     const token = "signedJwt";
     const reqheaders = {
-        Authorization: `Bearer: ${token}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"
     };
     const manifestId = "5906d98f2e4f60e34879bff8";

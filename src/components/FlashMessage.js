@@ -1,8 +1,12 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 class FlashMessage extends Component {
     componentDidMount() {
-        this.timer = setTimeout(this.props.closeMessage, this.props.timeout || 5000);
+        this.timer = setTimeout(
+            this.props.closeMessage,
+            this.props.timeout || 5000
+        );
     }
 
     componentWillUnmount() {
@@ -27,11 +31,19 @@ class FlashMessage extends Component {
 
         return (
             <div className={alertClassName} role="alert">
-                <strong>{title}</strong>
+                <strong>
+                    {title}
+                </strong>
                 {text}
             </div>
         );
     }
 }
+
+FlashMessage.propTypes = {
+    message: PropTypes.string.isRequired,
+    closeMessage: PropTypes.func.isRequired,
+    timeout: PropTypes.number
+};
 
 export default FlashMessage;

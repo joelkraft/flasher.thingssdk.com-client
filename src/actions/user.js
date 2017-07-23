@@ -4,7 +4,7 @@ import * as user from "../actiontypes/user";
 import { apiUrl } from "../config";
 
 function getAuthHeader(token) {
-    return `Bearer: ${token}`;
+    return `Bearer ${token}`;
 }
 export function requestUserInfo() {
     return {

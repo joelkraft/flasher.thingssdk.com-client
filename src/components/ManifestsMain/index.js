@@ -1,19 +1,19 @@
 // Libs
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import {
-    fetchManifest,
     fetchManifests,
     saveManifest,
     createManifest,
     deleteManifest
-} from "../actions/manifests";
+} from "../../actions/manifests";
 import ManifestEdit from "./ManifestEdit";
 import ManifestList from "./ManifestList";
 import { Row, Col, Button } from "react-bootstrap";
 import fetch from "isomorphic-fetch";
-import { getIdFromUrl } from "../util";
-import { apiUrl } from "../config";
+import { getIdFromUrl } from "../../util";
+import { apiUrl } from "../../config";
 
 const emptyManifest = {
     name: "",
@@ -45,13 +45,13 @@ function getVisibleManifests(manifests, filter) {
     }
 }
 
-const mapStateToManifestPageProps = state => ({
+const mapStateToManifestsMainProps = state => ({
     manifests: getVisibleManifests(state.manifests.items, state.manifestFilter),
     token: state.authenticate.token,
     isAdmin: state.user.info.isAdmin
 });
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToManifestMainProps = dispatch => {
     return {
         handleSubmitCreate: (item, token) =>
             dispatch(createManifest(item, token)),
@@ -61,66 +61,63 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-class ManifestPage extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            showModal: false,
-            currentManifest: {}
-        };
-    }
-    createNew() {
-        return this.setState({
-            ...this.state,
+class ManifestsMain extends Component {
+    state = {
+        showModal: false,
+        currentManifest: {}
+    };
+    createNew = () => {
+        this.setState({
             showModal: true,
             currentManifest: { ...emptyManifest, isAuthor: true, isNew: true }
         });
+    };
+    resetPage = () => {
+        const { token, getManifests } = this.props;
+        this.setState({
+                showModal: false
+            });
+            getManifests(token);
     }
-    handleSubmit(isNew) {
-        if (isNew) {
-            return () =>
-                this.props
-                    .handleSubmitCreate(
-                        this.state.currentManifest,
-                        this.props.token
-                    )
-                    .then(() => {
-                        this.setState({
-                            ...this.state,
-                            showModal: false
-                        });
-                        this.props.getManifests(this.props.token);
-                    })
-                    .catch(err => {
-                        throw err;
-                    });
-        }
-        return () =>
-            this.props
-                .handleSubmitSave(this.state.currentManifest, this.props.token)
-                .then(() => {
-                    this.setState({
-                        ...this.state,
-                        showModal: false
-                    });
-                    this.props.getManifests(this.props.token);
-                })
+    handleSubmit = isNew => {
+        const { currentManifest } = this.state;
+        const {
+            token,
+            handleSubmitCreate,
+            handleSubmitSave
+        } = this.props;
+
+        const handleCreate = () =>
+            handleSubmitCreate(currentManifest, token)
+                .then(this.resetPage)
                 .catch(err => {
                     throw err;
                 });
-    }
-    handleDelete(manifestUrl) {
+
+        const handleSave = () =>
+            handleSubmitSave(currentManifest, token)
+                .then(this.resetPage)
+                .catch(err => {
+                    throw err;
+                });
+
+        if (isNew) {
+            return handleCreate;
+        }
+        return handleSave;
+    };
+    handleDelete = manifestUrl => {
         const id = getIdFromUrl(manifestUrl);
         const token = this.props.token;
         this.props
             .deleteManifest(id, token)
-            .then(this.props.getManifests(token))
+            .then(this.resetPage)
             .catch(err => {
                 throw err;
             });
-    }
-    open(item) {
-        const authHeaderValue = `Bearer: ${this.props.token}`;
+    };
+    open = item => {
+        const authHeaderValue = `Bearer ${this.props.token}`;
         const id = getIdFromUrl(item.manifest);
         fetch(`${apiUrl.root}/manifests/${id}`, {
             headers: {
@@ -131,7 +128,6 @@ class ManifestPage extends Component {
             .then(response => response.json())
             .then(data => {
                 this.setState({
-                    ...this.state,
                     currentManifest: {
                         ...emptyManifest,
                         ...data,
@@ -144,60 +140,68 @@ class ManifestPage extends Component {
             .catch(err => {
                 throw err;
             });
-    }
-    close() {
+    };
+    close = () => {
         this.setState({ showModal: false });
-    }
-    handleChange(key, value, index) {
-        let flash = null;
-        if (["address", "path", "sha"].indexOf(key) > -1) {
+    };
+
+    handleChange = (key, value, index) => {
+        const isFlashKey = key => ["address", "path", "sha"].indexOf(key) > -1;
+        const validateFlashKeyIndex = index => {
             if (typeof index === "undefined") {
                 throw new Error("No index supplied for Flash image");
             }
-            this.setState({
-                ...this.state,
-                currentManifest: {
-                    ...this.state.currentManifest,
-                    flash: {
-                        ...this.state.currentManifest.flash,
-                        images: this.state.currentManifest.flash.images.map(
-                            (image, imageIndex) => {
-                                if (imageIndex === index) {
-                                    return {
-                                        ...image,
-                                        [key]: value
-                                    };
-                                }
-                                return image;
+        };
+        const getNewFlashState = (key, value, index) => ({
+            currentManifest: {
+                ...this.state.currentManifest,
+                flash: {
+                    ...this.state.currentManifest.flash,
+                    images: this.state.currentManifest.flash.images.map(
+                        (image, imageIndex) => {
+                            if (imageIndex === index) {
+                                return {
+                                    ...image,
+                                    [key]: value
+                                };
                             }
-                        )
-                    }
+                            return image;
+                        }
+                    )
                 }
-            });
-        } else if (key === "frequency") {
-            this.setState({
-                ...this.state,
-                currentManifest: {
-                    ...this.state.currentManifest,
-                    flash: {
-                        ...this.state.currentManifest.flash,
-                        [key]: value
-                    }
-                }
-            });
-        } else {
-            this.setState({
-                ...this.state,
-                currentManifest: {
-                    ...this.state.currentManifest,
+            }
+        });
+
+        const isFrequencyKey = key => key === "frequency";
+        const getNewFrequencyState = (key, value) => ({
+            currentManifest: {
+                ...this.state.currentManifest,
+                flash: {
+                    ...this.state.currentManifest.flash,
                     [key]: value
                 }
-            });
+            }
+        });
+
+        const getNewManifestState = (key, value) => ({
+            currentManifest: {
+                ...this.state.currentManifest,
+                [key]: value
+            }
+        });
+
+        if (isFlashKey(key)) {
+            validateFlashKeyIndex(index);
+            this.setState(getNewFlashState(key, value, index));
+        } else if (isFrequencyKey(key)) {
+            this.setState(getNewFrequencyState(key, value));
+        } else {
+            this.setState(getNewManifestState(key, value));
         }
-    }
-    deleteFlashImage(indexToRemove) {
+    };
+
+    deleteFlashImage = indexToRemove => {
         this.setState({
-            ...this.state,
             currentManifest: {
                 ...this.state.currentManifest,
                 flash: {
@@ -214,10 +218,9 @@ class ManifestPage extends Component {
                 }
             }
         });
-    }
-    createFlashImage() {
+    };
+    createFlashImage = () => {
         this.setState({
-            ...this.state,
             currentManifest: {
                 ...this.state.currentManifest,
                 flash: {
@@ -233,12 +236,12 @@ class ManifestPage extends Component {
                 }
             }
         });
-    }
+    };
 
     componentDidMount() {
-        const { token } = this.props;
+        const { token, getManifests } = this.props;
 
-        this.props.getManifests(token).catch(err => {
+        getManifests(token).catch(err => {
             throw err;
         });
     }
@@ -246,14 +249,15 @@ class ManifestPage extends Component {
         const firstColumn = 2;
         const secondColumn = 10;
         return (
-            <div>
+            <Col sm={9} smOffset={3} md={10} mdOffset={2} className="main">
+                <h1 className="page-header">Manifests</h1>
                 <Row>
                     <Col lg={firstColumn} md={firstColumn} />
                     <Col lg={secondColumn} md={secondColumn}>
                         <Button
                             bsStyle="primary"
                             id="createManifestButton"
-                            onClick={this.createNew.bind(this)}
+                            onClick={this.createNew}
                         >
                             Create new manifest
                         </Button>
@@ -262,31 +266,41 @@ class ManifestPage extends Component {
                 <hr />
                 <div className="table-responsive">
                     <ManifestEdit
-                        close={this.close.bind(this)}
+                        close={this.close}
                         showModal={this.state.showModal}
-                        handleChange={this.handleChange.bind(this)}
-                        deleteFlashImage={this.deleteFlashImage.bind(this)}
-                        createFlashImage={this.createFlashImage.bind(this)}
+                        handleChange={this.handleChange}
+                        deleteFlashImage={this.deleteFlashImage}
+                        createFlashImage={this.createFlashImage}
                         manifestDetails={this.state.currentManifest}
                         isAdmin={this.props.isAdmin}
                         handleSubmit={this.handleSubmit(
                             this.state.currentManifest.isNew
-                        ).bind(this)}
+                        )}
                     />
                     <ManifestList
                         manifests={this.props.manifests}
-                        openManifest={this.open.bind(this)}
-                        handleDelete={this.handleDelete.bind(this)}
+                        openManifest={this.open}
+                        handleDelete={this.handleDelete}
                         isAdmin={this.props.isAdmin}
                     />
                 </div>
-            </div>
+            </Col>
         );
     }
 }
 
-export { ManifestPage };
+ManifestsMain.propTypes = {
+    token: PropTypes.string.isRequired,
+    isAdmin: PropTypes.bool.isRequired,
+    manifests: PropTypes.array.isRequired,
+    handleSubmitSave: PropTypes.func.isRequired,
+    handleSubmitCreate: PropTypes.func.isRequired,
+    getManifests: PropTypes.func.isRequired,
+    deleteManifest: PropTypes.func.isRequired
+};
 
-export default connect(mapStateToManifestPageProps, mapDispatchToProps)(
-    ManifestPage
+export { ManifestsMain };
+
+export default connect(mapStateToManifestsMainProps, mapDispatchToManifestMainProps)(
+    ManifestsMain
 );

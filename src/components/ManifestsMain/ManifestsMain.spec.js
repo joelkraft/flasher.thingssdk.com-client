@@ -3,9 +3,9 @@ import ReactDOM from "react-dom";
 import { shallow, mount } from "enzyme";
 import { Button } from "react-bootstrap";
 
-import { ManifestPage } from "./VisibleManifests";
+import { ManifestsMain } from "./index";
 import ManifestList from "./ManifestList";
-import { getIdFromUrl } from "../util";
+import { getIdFromUrl } from "../../util";
 
 const manifests = [
     {
@@ -58,14 +58,19 @@ handleSubmitSave.mockReturnValue(Promise.resolve());
 const getManifests = jest.fn();
 getManifests.mockReturnValue(Promise.resolve());
 
-const getComponent = () => (
-    <ManifestPage
+const deleteManifest = jest.fn();
+deleteManifest.mockReturnValue(Promise.resolve());
+
+const getComponent = () =>
+    <ManifestsMain
         manifests={manifests}
         handleSubmitCreate={handleSubmitCreate}
         handleSubmitSave={handleSubmitSave}
         getManifests={getManifests}
-    />
-);
+        deleteManifest={deleteManifest}
+        token={"secret"}
+        isAdmin={true}
+    />;
 
 it("renders without crashing", () => {
     const div = document.createElement("div");
@@ -74,24 +79,41 @@ it("renders without crashing", () => {
 });
 
 it("renders a spinner while manifests are being fetched");
-it("renders a message when no manifests are returned");
-
-it("renders ManifestList", () => {
-    const wrapper = shallow(getComponent());
-    const ManifestList = wrapper.find("ManifestList");
-    const ManifestListProps = ManifestList.props();
-    expect(ManifestList.length).toBe(1);
-    expect(ManifestListProps.manifests.length).toEqual(2);
-    expect(ManifestListProps.manifests[0].name).toEqual("Espruino");
-    expect(ManifestListProps.manifests[1].name).toEqual("Smart.js");
-});
 
 it("fetches all available manifests on loading", () => {
     const wrapper = shallow(getComponent());
     expect(getManifests.mock.calls.length).toEqual(1);
 });
 
-it('sets modal to visible when "create new" button is clicked', () => {
+it("renders a message when no manifests are returned");
+
+it("renders Create new manifest button", () => {
+    const wrapper = shallow(getComponent());
+    const button = wrapper.find("#createManifestButton");
+    expect(button.length).toEqual(1);
+    expect(button.children().text()).toEqual("Create new manifest");
+});
+
+it("renders ManifestList component", () => {
+    const wrapper = shallow(getComponent());
+    const ManifestList = wrapper.find("ManifestList");
+    const ManifestListProps = ManifestList.props();
+    expect(ManifestListProps.manifests.length).toEqual(2);
+    expect(ManifestListProps.manifests[0].name).toEqual("Espruino");
+    expect(ManifestListProps.manifests[1].name).toEqual("Smart.js");
+    expect(ManifestListProps.isAdmin).toBe(true);
+});
+
+it("renders ManifestEdit component", () => {
+    const wrapper = shallow(getComponent());
+    const ManifestEdit = wrapper.find("ManifestEdit");
+    const ManifestEditProps = ManifestEdit.props();
+    expect(ManifestEditProps.showModal).toEqual(false);
+    expect(ManifestEditProps.manifestDetails).toEqual({});
+    expect(ManifestEditProps.isAdmin).toBe(true);
+});
+
+it('sets modal to visible and passes blank manifest when "create new" button is clicked', () => {
     const wrapper = shallow(getComponent());
     const createNewButton = wrapper.find("#createManifestButton");
     createNewButton.simulate("click");
@@ -99,17 +121,9 @@ it('sets modal to visible when "create new" button is clicked', () => {
     const ManifestEdit = wrapper.find("ManifestEdit");
     const modalProps = ManifestEdit.props();
     expect(modalProps.showModal).toBe(true);
+    expect(modalProps.manifestDetails).toEqual({
+        ...blankManifestObject,
+        isNew: true,
+        isAuthor: true
+    });
 });
-
-it('passes blank manifest object to ManifestEdit when "create new" button is clicked', () => {
-    const newManifest = { ...blankManifestObject, isNew: true, isAuthor: true };
-    const wrapper = shallow(getComponent());
-    const createNewButton = wrapper.find("#createManifestButton");
-    createNewButton.simulate("click");
-    wrapper.update();
-    const ManifestEdit = wrapper.find("ManifestEdit");
-    const modalProps = ManifestEdit.props();
-    expect(modalProps.manifestDetails).toEqual(newManifest);
-});
-
-it("calls handleSubmitCreate when ManifestEdit calls handleSubmit, passes new manifest & token");

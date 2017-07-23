@@ -49,7 +49,7 @@ export function receiveManifestFailed() {
 }
 
 export function fetchManifest(manifestId, token) {
-    const authHeaderValue = `Bearer: ${token}`;
+    const authHeaderValue = `Bearer ${token}`;
     return function(dispatch) {
         dispatch(requestManifest());
         return fetch(`${apiUrl.root}/manifests/${manifestId}`, {
@@ -89,7 +89,7 @@ export function receiveManifestsFailed() {
 }
 
 export function fetchManifests(token) {
-    const authHeaderValue = `Bearer: ${token}`;
+    const authHeaderValue = `Bearer ${token}`;
     return function(dispatch) {
         dispatch(requestManifests());
         return fetch(apiUrl.root, {
@@ -131,7 +131,7 @@ export function manifestWasNotSaved() {
 
 export function saveManifest(item, token) {
     const id = getIdFromUrl(item.manifest);
-    const authHeaderValue = `Bearer: ${token}`;
+    const authHeaderValue = `Bearer ${token}`;
     return function(dispatch) {
         dispatch(requestSaveManifest());
         return fetch(`${apiUrl.root}/manifests/${id}`, {
@@ -143,7 +143,7 @@ export function saveManifest(item, token) {
             body: JSON.stringify(item)
         })
             .then(response => response.json())
-            .then(doc => dispatch(manifestWasSaved(doc)))
+            .then(doc => dispatch(manifestWasSaved()))
             .catch(err => {
                 dispatch(manifestWasNotSaved());
                 throw err;
@@ -171,7 +171,7 @@ export function manifestWasNotCreated() {
 }
 
 export function createManifest(item, token) {
-    const authHeaderValue = `Bearer: ${token}`;
+    const authHeaderValue = `Bearer ${token}`;
     return function(dispatch) {
         dispatch(requestCreateManifest());
         return fetch(`${apiUrl.root}/manifests`, {
@@ -218,7 +218,7 @@ export function manifestWasNotDeleted() {
 }
 
 export function deleteManifest(id, token) {
-    const authHeaderValue = `Bearer: ${token}`;
+    const authHeaderValue = `Bearer ${token}`;
     return function(dispatch) {
         dispatch(requestDeleteManifest());
         return fetch(`${apiUrl.root}/manifests/${id}`, {

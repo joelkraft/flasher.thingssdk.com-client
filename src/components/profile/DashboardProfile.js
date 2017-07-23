@@ -28,7 +28,6 @@ class DashboardProfile extends Component {
         dispatch(fetchUserInfo(token))
             .then(info => {
                 this.setState({
-                    ...this.state,
                     info
                 });
             })
@@ -40,7 +39,6 @@ class DashboardProfile extends Component {
     onFieldChange(key, event) {
         console.log(key, event.target.value);
         this.setState({
-            ...this.state,
             info: {
                 ...this.state.info,
                 [key]: event.target.value
@@ -55,7 +53,6 @@ class DashboardProfile extends Component {
         dispatch(saveUserInfo(this.state.info, token))
             .then(info => {
                 this.setState({
-                    ...this.state,
                     info,
                     flashMessage: {
                         type: "success",
@@ -73,7 +70,6 @@ class DashboardProfile extends Component {
                     errObj.text = "Something went wrong. Try again.";
                 }
                 this.setState({
-                    ...this.state,
                     flashMessage: errObj
                 });
             });
@@ -90,7 +86,6 @@ class DashboardProfile extends Component {
                                   message={this.state.flashMessage}
                                   closeMessage={() => {
                                       this.setState({
-                                          ...this.state,
                                           flashMessage: null
                                       });
                                   }}
@@ -127,7 +122,6 @@ class DashboardProfile extends Component {
                                     onClick={e => {
                                         e.preventDefault();
                                         this.setState({
-                                            ...this.state,
                                             info: this.props.userInfo,
                                             flashMessage: {
                                                 type: "notice",

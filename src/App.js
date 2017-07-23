@@ -14,7 +14,7 @@ import { fetchUserInfo } from "./actions/user";
 import { checkTokenInCookies } from "./actions/authenticate";
 
 // Components
-import App from "./components/App";
+import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import CheckAuthContainer from "./components/CheckAuthContainer";
 
@@ -35,7 +35,7 @@ export default () => {
         <Router>
             <CheckAuthContainer
                 LoginPage={Login}
-                Protected={App}
+                Protected={Dashboard}
                 location={location}
             />
         </Router>

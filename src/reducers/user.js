@@ -2,7 +2,7 @@ import * as auth from "../actiontypes/user";
 
 export default (
     state = {
-        info: {},
+        info: { isAdmin: false },
         isFetching: false
     },
     action

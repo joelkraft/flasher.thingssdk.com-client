@@ -1,16 +1,16 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Button } from "react-bootstrap";
-import { getIdFromUrl } from "../util";
 
-const Label = props => (
-    <span className={`label label-${props.type}`}>{props.name}</span>
-);
+const Label = props =>
+    <span className={`label label-${props.type}`}>
+        {props.name}
+    </span>;
 
-const DeleteButton = ({ onClick }) => (
+const DeleteButton = ({ onClick }) =>
     <Button bsStyle="danger" bsSize="xs" onClick={onClick}>
         Delete
-    </Button>
-);
+    </Button>;
 const ManifestList = ({ manifests, openManifest, handleDelete, isAdmin }) => {
     return (
         <table className="table table-striped">
@@ -45,10 +45,18 @@ const ManifestList = ({ manifests, openManifest, handleDelete, isAdmin }) => {
                                 openManifest(man);
                             }}
                         >
-                            <td>{name}</td>
-                            <td>{version}</td>
-                            <td>{board}</td>
-                            <td>{revision}</td>
+                            <td>
+                                {name}
+                            </td>
+                            <td>
+                                {version}
+                            </td>
+                            <td>
+                                {board}
+                            </td>
+                            <td>
+                                {revision}
+                            </td>
                             <td>
                                 {published
                                     ? <Label type="success" name="PUBLISHED" />
@@ -65,8 +73,7 @@ const ManifestList = ({ manifests, openManifest, handleDelete, isAdmin }) => {
                             <td>
                                 {isAuthor || isAdmin
                                     ? <DeleteButton
-                                          onClick={() =>
-                                              handleDelete(manifest)}
+                                          onClick={() => handleDelete(manifest)}
                                       />
                                     : null}
                             </td>
@@ -76,6 +83,13 @@ const ManifestList = ({ manifests, openManifest, handleDelete, isAdmin }) => {
             </tbody>
         </table>
     );
+};
+
+ManifestList.propTypes = {
+    manifests: PropTypes.array.isRequired,
+    openManifest: PropTypes.func.isRequired,
+    handleDelete: PropTypes.func.isRequired,
+    isAdmin: PropTypes.bool.isRequired
 };
 
 export default ManifestList;
