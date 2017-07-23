@@ -2,19 +2,26 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import fetch from "isomorphic-fetch";
+
+// Actions
 import {
     fetchManifests,
     saveManifest,
     createManifest,
     deleteManifest
 } from "../../actions/manifests";
+
+// Components
 import ManifestEdit from "./ManifestEdit";
 import ManifestList from "./ManifestList";
 import { Row, Col, Button } from "react-bootstrap";
-import fetch from "isomorphic-fetch";
+
+// Helpers
 import { getIdFromUrl } from "../../util";
 import { apiUrl } from "../../config";
 
+// This provides labels for the form to create new manifests
 const emptyManifest = {
     name: "",
     version: "",
@@ -34,6 +41,7 @@ const emptyManifest = {
     }
 };
 
+// Filters the manifest list view
 function getVisibleManifests(manifests, filter) {
     switch (filter) {
         case "ALL":
@@ -75,17 +83,13 @@ class ManifestsMain extends Component {
     resetPage = () => {
         const { token, getManifests } = this.props;
         this.setState({
-                showModal: false
-            });
-            getManifests(token);
-    }
+            showModal: false
+        });
+        getManifests(token);
+    };
     handleSubmit = isNew => {
         const { currentManifest } = this.state;
-        const {
-            token,
-            handleSubmitCreate,
-            handleSubmitSave
-        } = this.props;
+        const { token, handleSubmitCreate, handleSubmitSave } = this.props;
 
         const handleCreate = () =>
             handleSubmitCreate(currentManifest, token)
@@ -109,12 +113,9 @@ class ManifestsMain extends Component {
     handleDelete = manifestUrl => {
         const id = getIdFromUrl(manifestUrl);
         const token = this.props.token;
-        this.props
-            .deleteManifest(id, token)
-            .then(this.resetPage)
-            .catch(err => {
-                throw err;
-            });
+        this.props.deleteManifest(id, token).then(this.resetPage).catch(err => {
+            throw err;
+        });
     };
     open = item => {
         const authHeaderValue = `Bearer ${this.props.token}`;
@@ -191,11 +192,14 @@ class ManifestsMain extends Component {
         });
 
         if (isFlashKey(key)) {
+            // Flash objects are nested and in an array
             validateFlashKeyIndex(index);
             this.setState(getNewFlashState(key, value, index));
         } else if (isFrequencyKey(key)) {
+            // Frequency is nested
             this.setState(getNewFrequencyState(key, value));
         } else {
+            // All other keys are flat
             this.setState(getNewManifestState(key, value));
         }
     };
@@ -241,6 +245,7 @@ class ManifestsMain extends Component {
     componentDidMount() {
         const { token, getManifests } = this.props;
 
+        // Call the API for viewable manifests
         getManifests(token).catch(err => {
             throw err;
         });
@@ -301,6 +306,7 @@ ManifestsMain.propTypes = {
 
 export { ManifestsMain };
 
-export default connect(mapStateToManifestsMainProps, mapDispatchToManifestMainProps)(
-    ManifestsMain
-);
+export default connect(
+    mapStateToManifestsMainProps,
+    mapDispatchToManifestMainProps
+)(ManifestsMain);
