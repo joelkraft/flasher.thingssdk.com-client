@@ -36,7 +36,7 @@ class ManifestEdit extends Component {
         ];
         const isEditor = isAuthor || isAdmin;
         return (
-            <Modal show={this.props.showModal} onHide={this.props.close}>
+            <Modal show={this.props.showModal} onHide={this.props.closeManifest}>
                 <Modal.Header closeButton>
                     <Modal.Title>
                         {getMode(isNew, isEditor)} Manifest
@@ -69,7 +69,7 @@ class ManifestEdit extends Component {
                               {isNew ? "Create" : "Save"}
                           </Button>
                         : null}
-                    <Button onClick={this.props.close}>
+                    <Button onClick={this.props.closeManifest}>
                         {isEditor ? "Cancel" : "Close"}
                     </Button>
                 </Modal.Footer>

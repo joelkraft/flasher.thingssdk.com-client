@@ -117,7 +117,7 @@ class ManifestsMain extends Component {
             throw err;
         });
     };
-    open = item => {
+    openManifest = item => {
         const authHeaderValue = `Bearer ${this.props.token}`;
         const id = getIdFromUrl(item.manifest);
         fetch(`${apiUrl.root}/manifests/${id}`, {
@@ -142,7 +142,7 @@ class ManifestsMain extends Component {
                 throw err;
             });
     };
-    close = () => {
+    closeManifest = () => {
         this.setState({ showModal: false });
     };
 
@@ -271,7 +271,7 @@ class ManifestsMain extends Component {
                 <hr />
                 <div className="table-responsive">
                     <ManifestEdit
-                        close={this.close}
+                        closeManifest={this.closeManifest}
                         showModal={this.state.showModal}
                         handleChange={this.handleChange}
                         deleteFlashImage={this.deleteFlashImage}
@@ -284,7 +284,7 @@ class ManifestsMain extends Component {
                     />
                     <ManifestList
                         manifests={this.props.manifests}
-                        openManifest={this.open}
+                        openManifest={this.openManifest}
                         handleDelete={this.handleDelete}
                         isAdmin={this.props.isAdmin}
                     />
